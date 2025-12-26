@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="BruScoNo">
+  <title>BruScoNo</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #fafafa; --card: #ffffff; --text: #1a1a1a; --text-muted: #666666;
+      --border: #e0e0e0; --primary: #2563eb; --primary-hover: #1d4ed8;
+      --success: #16a34a; --danger: #dc2626; --owed: #ea580c;
+    }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.5;
+      min-height: 100vh; -webkit-font-smoothing: antialiased;
+    }
+    .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; background: var(--bg); }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .header h1 { font-size: 1.25rem; font-weight: 600; }
+    .header-balance { font-size: 0.875rem; font-weight: 500; padding: 4px 10px; border-radius: 20px; }
+    .header-balance.owed { background: #fff7ed; color: var(--owed); }
+    .header-balance.clear { background: #f0fdf4; color: var(--success); }
+    .main { flex: 1; padding: 16px; padding-bottom: 80px; overflow-y: auto; }
+    .tab-content { display: none; animation: fadeIn 0.2s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .add-form { display: flex; gap: 8px; margin-bottom: 20px; }
+    .add-form .input { flex: 1; }
+    .entry-form, .settings-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; padding: 16px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .input:first-child { flex: 1; }
+    .hours-input, .amount-input { width: 100px; }
+    .input { padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg); color: var(--text); transition: border-color 0.15s, box-shadow 0.15s; }
+    .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    .input::placeholder { color: var(--text-muted); }
+    .btn { padding: 12px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .btn-icon { width: 32px; height: 32px; border: none; background: transparent; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+    .btn-icon:hover { background: var(--bg); }
+    .btn-icon.delete:hover { color: var(--danger); background: #fef2f2; }
+    .btn-small { padding: 6px 12px; border: 1px solid var(--border); background: var(--card); border-radius: 6px; font-size: 0.8125rem; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .btn-small:hover { background: var(--bg); color: var(--text); }
+    .btn-small.delete:hover { color: var(--danger); border-color: var(--danger); background: #fef2f2; }
+    .task-list { display: flex; flex-direction: column; gap: 2px; }
+    .task-item { display: flex; align-items: center; gap: 12px; padding: 14px 12px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
+    .task-item.completed { opacity: 0.6; }
+    .task-item.completed .task-text { text-decoration: line-through; }
+    .checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; background: var(--card); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; }
+    .checkbox:hover { border-color: var(--primary); }
+    .checkbox.checked { background: var(--success); border-color: var(--success); color: white; font-size: 0.875rem; }
+    .task-text { flex: 1; font-size: 1rem; }
+    .completed-section { margin-top: 16px; }
+    .toggle-completed { background: none; border: none; color: var(--text-muted); font-size: 0.875rem; cursor: pointer; padding: 8px 0; display: flex; align-items: center; gap: 6px; }
+    .toggle-completed:hover { color: var(--text); }
+    .task-list.completed { margin-top: 8px; }
+    .entry-list { display: flex; flex-direction: column; gap: 8px; }
+    .entry-item { padding: 14px 16px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
+    .entry-main { display: flex; align-items: center; gap: 12px; }
+    .entry-date { font-weight: 500; min-width: 100px; }
+    .entry-hours { color: var(--text-muted); font-size: 0.875rem; }
+    .entry-amount { margin-left: auto; font-weight: 600; color: var(--success); }
+    .payment-amount { margin-left: auto; font-weight: 600; color: var(--primary); }
+    .entry-notes { margin-top: 8px; font-size: 0.875rem; color: var(--text-muted); padding-left: 2px; }
+    .entry-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .balance-card { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 24px; border-radius: 16px; margin-bottom: 20px; text-align: center; }
+    .balance-label { font-size: 0.875rem; opacity: 0.9; margin-bottom: 4px; }
+    .balance-amount { font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; }
+    .balance-amount.owed { color: #fef3c7; }
+    .balance-amount.clear { color: #bbf7d0; }
+    .balance-breakdown { display: flex; justify-content: center; gap: 24px; font-size: 0.875rem; opacity: 0.9; }
+    .setting-label { font-weight: 500; display: flex; flex-direction: column; gap: 8px; }
+    .rate-input-wrapper { display: flex; align-items: center; gap: 4px; }
+    .currency-symbol { font-size: 1.125rem; color: var(--text-muted); }
+    .rate-input { width: 120px; }
+    .stats { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 16px; }
+    .stat-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .stat-item:last-child { border-bottom: none; }
+    .section-title { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 8px; }
+    .empty-state { text-align: center; color: var(--text-muted); padding: 32px 16px; font-size: 0.9375rem; }
+    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; background: var(--card); border-top: 1px solid var(--border); padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px; border: none; background: none; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
+    .nav-btn:hover { color: var(--text); }
+    .nav-btn.active { color: var(--primary); }
+    .nav-icon { font-size: 1.25rem; }
+    .nav-label { font-size: 0.6875rem; font-weight: 500; }
+    .hidden { display: none !important; }
+    .home-hero { text-align: center; padding: 32px 16px 24px; }
+    .home-hero h2 { font-size: 2rem; font-weight: 700; margin-bottom: 4px; color: var(--primary); }
+    .home-hero p { color: var(--text-muted); font-size: 0.9375rem; }
+    .home-balance { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; }
+    .home-balance-label { font-size: 0.8125rem; opacity: 0.9; margin-bottom: 4px; }
+    .home-balance-amount { font-size: 2rem; font-weight: 700; }
+    .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .home-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+    .home-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .home-card-icon { font-size: 1.75rem; }
+    .home-card-label { font-weight: 500; font-size: 0.9375rem; }
+    .home-card-count { font-size: 0.8125rem; color: var(--text-muted); }
+    .recurring-list { display: flex; flex-direction: column; gap: 16px; }
+    .area-section { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+    .area-header { padding: 12px 16px; background: var(--bg); font-weight: 600; font-size: 0.9375rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .area-header .icon { font-size: 1.125rem; }
+    .area-header .info-btn { margin-left: auto; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--primary); background: transparent; color: var(--primary); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+    .area-header .info-btn:hover { background: var(--primary); color: white; }
+    .area-tasks { padding: 8px 0; }
+    .area-task { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background 0.15s; }
+    .area-task:hover { background: var(--bg); }
+    .area-task.checked .task-text { text-decoration: line-through; opacity: 0.5; }
+    .area-task .checkbox { margin-top: 2px; }
+    .area-task .task-text { flex: 1; font-size: 0.9375rem; }
+    .area-task .task-text .optional { color: #dc2626; font-size: 0.8125rem; display: block; margin-top: 2px; }
+    .shopping-preview { padding: 12px 16px; background: #f0fdf4; border-top: 1px solid #bbf7d0; font-size: 0.875rem; color: #166534; }
+    .shopping-preview.empty { background: var(--bg); border-top: 1px solid var(--border); color: var(--text-muted); }
+    .shopping-preview ul { margin: 0; padding-left: 18px; }
+    .shopping-preview li { margin-bottom: 2px; }
+    .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 100; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .popup-overlay.active { opacity: 1; visibility: visible; }
+    .popup { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: var(--card); border-radius: 16px 16px 0 0; z-index: 101; transition: transform 0.3s ease-out; max-height: 70vh; overflow-y: auto; }
+    .popup-overlay.active .popup { transform: translateX(-50%) translateY(0); }
+    .popup-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card); }
+    .popup-header h3 { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .popup-close { width: 32px; height: 32px; border: none; background: var(--bg); border-radius: 50%; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    .popup-close:hover { background: var(--border); color: var(--text); }
+    .popup-content { padding: 16px 20px 32px; }
+    .popup-content ul { margin: 0; padding-left: 20px; }
+    .popup-content li { margin-bottom: 10px; line-height: 1.5; color: var(--text); }
+    .popup-content li:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>BruScoNo</h1>
+      <div id="headerBalance" class="header-balance hidden"></div>
+    </header>
+
+    <main class="main">
+      <!-- Home Tab -->
+      <div id="homeTab" class="tab-content active">
+        <div class="home-hero">
+          <h2>BruScoNo</h2>
+          <p>Household management</p>
+        </div>
+        <div class="home-balance">
+          <div class="home-balance-label">Balance Owed</div>
+          <div id="homeBalanceAmount" class="home-balance-amount">$0.00</div>
+        </div>
+        <div class="home-grid">
+          <button class="home-card" data-goto="tasks">
+            <span class="home-card-icon">☐</span>
+            <span class="home-card-label">Tasks</span>
+            <span class="home-card-count" id="homeTaskCount">0</span>
+          </button>
+          <button class="home-card" data-goto="shopping">
+            <span class="home-card-icon">🛒</span>
+            <span class="home-card-label">Shopping</span>
+            <span class="home-card-count" id="homeShopCount">0</span>
+          </button>
+          <button class="home-card" data-goto="recurring">
+            <span class="home-card-icon">🔄</span>
+            <span class="home-card-label">Routine</span>
+            <span class="home-card-count" id="homeRoutineCount"></span>
+          </button>
+          <button class="home-card" data-goto="timesheet">
+            <span class="home-card-icon">⏱</span>
+            <span class="home-card-label">Hours</span>
+            <span class="home-card-count" id="homeHoursCount">0h</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tasks Tab -->
+      <div id="tasksTab" class="tab-content">
+        <form id="addTaskForm" class="add-form">
+          <input type="text" id="newTaskInput" class="input" placeholder="Add a task...">
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+        <div id="taskList" class="task-list"></div>
+        <div id="completedSection" class="completed-section hidden">
+          <button id="toggleCompleted" class="toggle-completed">▶ Completed (<span id="completedCount">0</span>)</button>
+          <div id="completedTaskList" class="task-list completed hidden"></div>
+        </div>
+      </div>
+
+      <!-- Shopping List Tab -->
+      <div id="shoppingTab" class="tab-content">
+        <form id="addShoppingForm" class="add-form">
+          <input type="text" id="newShoppingInput" class="input" placeholder="Add item...">
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+        <div id="shoppingList" class="task-list"></div>
+      </div>
+
+      <!-- Recurring Tasks Tab -->
+      <div id="recurringTab" class="tab-content">
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 16px;">Standard tasks for each shift. Tap to check off, resets next visit.</p>
+        <button id="resetRecurring" class="btn btn-secondary" style="margin-bottom: 16px; width: 100%;">Reset All Tasks</button>
+        <div id="recurringList" class="recurring-list"></div>
+      </div>
+
+      <!-- Timesheet Tab -->
+      <div id="timesheetTab" class="tab-content">
+        <form id="addTimeForm" class="entry-form">
+          <div class="form-row">
+            <input type="date" id="entryDate" class="input">
+            <input type="number" id="entryHours" class="input hours-input" placeholder="Hours" step="0.5" min="0">
+          </div>
+          <input type="text" id="entryNotes" class="input" placeholder="Notes (optional)">
+          <button type="submit" class="btn btn-primary" id="timeSubmitBtn">Log Hours</button>
+          <button type="button" class="btn btn-secondary hidden" id="timeCancelBtn">Cancel</button>
+        </form>
+        <div id="timeEntryList" class="entry-list"></div>
+      </div>
+
+      <!-- Payments Tab -->
+      <div id="paymentsTab" class="tab-content">
+        <div class="balance-card">
+          <div class="balance-label">Balance Owed</div>
+          <div id="balanceAmount" class="balance-amount">$0.00</div>
+          <div class="balance-breakdown">
+            <span>Earned: <span id="totalEarned">$0.00</span></span>
+            <span>Paid: <span id="totalPaid">$0.00</span></span>
+          </div>
+        </div>
+        <form id="addPaymentForm" class="entry-form">
+          <div class="form-row">
+            <input type="date" id="paymentDate" class="input">
+            <input type="number" id="paymentAmount" class="input amount-input" placeholder="Amount" step="0.01" min="0">
+          </div>
+          <input type="text" id="paymentNotes" class="input" placeholder="Notes (optional)">
+          <button type="submit" class="btn btn-primary">Record Payment</button>
+        </form>
+        <h3 class="section-title">Payment History</h3>
+        <div id="paymentList" class="entry-list"></div>
+      </div>
+    </main>
+
+    <!-- Info Popup -->
+    <div id="popupOverlay" class="popup-overlay">
+      <div class="popup">
+        <div class="popup-header">
+          <h3><span id="popupIcon"></span> <span id="popupTitle"></span></h3>
+          <button class="popup-close" onclick="closePopup()">×</button>
+        </div>
+        <div class="popup-content">
+          <ul id="popupNotes"></ul>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+      <button class="nav-btn" data-tab="tasks"><span class="nav-icon">☐</span><span class="nav-label">Tasks</span></button>
+      <button class="nav-btn" data-tab="shopping"><span class="nav-icon">🛒</span><span class="nav-label">Shop</span></button>
+      <button class="nav-btn" data-tab="recurring"><span class="nav-icon">🔄</span><span class="nav-label">Routine</span></button>
+      <button class="nav-btn" data-tab="timesheet"><span class="nav-icon">⏱</span><span class="nav-label">Hours</span></button>
+      <button class="nav-btn" data-tab="payments"><span class="nav-icon">$</span><span class="nav-label">Pay</span></button>
+    </nav>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDk4U1TceIL5dQA_nA1O4monD_RIsnhlG0",
+      authDomain: "nanager-f8c08.firebaseapp.com",
+      projectId: "nanager-f8c08",
+      storageBucket: "nanager-f8c08.firebasestorage.app",
+      messagingSenderId: "252541135486",
+      appId: "1:252541135486:web:290ffdd09246d12241462f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // State
+    let tasks = [];
+    let shoppingItems = [];
+    let timeEntries = [];
+    let payments = [];
+    const hourlyRate = 35;
+    let activeTab = 'tasks';
+    let showCompleted = false;
+    let editingEntryId = null;
+    let recurringChecked = JSON.parse(localStorage.getItem('recurringChecked') || '{}');
+
+    // Recurring tasks data
+    const recurringTasks = [
+      {
+        area: 'Shopping',
+        icon: '🛒',
+        tasks: ['Pick up dinner veges and any adhoc items on the Shop list'],
+        notes: []
+      },
+      {
+        area: 'Pick up the post',
+        icon: '📬',
+        tasks: ['Pick up things that have been directed to the post office'],
+        notes: ['Most of the time this is the post office at 12 Hoddle Street just up the road']
+      },
+      {
+        area: 'Thomas',
+        icon: '🐕',
+        tasks: ['60 min walk OR drop/pick up from Doggy Daycare', 'Check water bowl'],
+        notes: [
+          'Lead & poo bags in study cupboard',
+          'Can go off leash at Vic Park and down by the Yarra river',
+          'On hot days, watch out for his paws on hot tarmac',
+          'Thomas is in Doggy Daycare on Tuesdays and Thursdays. On other days Bruce takes him to the office or he stays home with one of us'
+        ]
+      },
+      {
+        area: 'Kitchen',
+        icon: '🍳',
+        tasks: [
+          'Unpack / repack dishwasher and put on if full',
+          'Clean out fridge',
+          'Prep a tray of roasted veggies for dinner|Buy, chop up and put on tray, we\'ll chuck in the oven before dinner',
+          'Tidy and wipe down surfaces',
+          'Wipe down toddler tower',
+          'Restock dish towels and baby face washers in qantas cart|optional'
+        ],
+        notes: [
+          'Dishwasher tablets are above the stove on the right hand side',
+          'Be ruthless with the fridge! We\'ll put a label on anything we specifically want to keep'
+        ]
+      },
+      {
+        area: 'Lounge',
+        icon: '🛋️',
+        tasks: ['Tidy toys / pick up pillows on floor', 'Water the vine', 'Set off robovac'],
+        notes: ['To water the vine, check if the indicators are up and then top up with water in the corner (not onto the plant)']
+      },
+      {
+        area: 'Laundry',
+        icon: '🧺',
+        tasks: ['Put washing on', 'Hang washing out (or if socks/jocks/towels put in dryer)'],
+        notes: [
+          'Basket in Bruce & Scott\'s bedroom',
+          'Socks/jocks/towels/sheets → quick cycle + dryer',
+          'Clothes → cold/gentle cycle + hang on clothes horse'
+        ]
+      },
+      {
+        area: 'Bedroom',
+        icon: '🛏️',
+        tasks: ['Change sheets (once a week)', 'Make bed', 'Put bedcover in wash (once a month)'],
+        notes: ['Sheets are stored in linen cupboard']
+      },
+      {
+        area: 'Nursery',
+        icon: '👶',
+        tasks: ['Tidy toys', 'Empty nappy bin', 'Set off robovac'],
+        notes: ['Bin liners are under Noa\'s cot']
+      },
+      {
+        area: 'Empty Bins',
+        icon: '🗑️',
+        tasks: ['Kitchen', 'Nappy bin', 'Laundry bin'],
+        notes: []
+      }
+    ];
+
+    // Helpers
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr + 'T00:00:00');
+      return date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+    };
+
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(amount);
+    };
+
+    const today = () => new Date().toISOString().split('T')[0];
+
+    // Calculate totals
+    const getTotals = () => {
+      const totalEarned = timeEntries.reduce((sum, e) => sum + e.hours * hourlyRate, 0);
+      const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+      const balance = totalEarned - totalPaid;
+      return { totalEarned, totalPaid, balance };
+    };
+
+    // Render functions
+    const renderTasks = () => {
+      const openTasks = tasks.filter(t => !t.completed);
+      const completedTasks = tasks.filter(t => t.completed);
+
+      const taskList = document.getElementById('taskList');
+      if (openTasks.length === 0) {
+        taskList.innerHTML = '<p class="empty-state">No tasks yet. Add one above!</p>';
+      } else {
+        taskList.innerHTML = openTasks.map(task => `
+          <div class="task-item" data-id="${task.id}">
+            <button class="checkbox" onclick="toggleTask('${task.id}')"></button>
+            <span class="task-text">${task.description}</span>
+            <button class="btn-icon delete" onclick="deleteTask('${task.id}')">×</button>
+          </div>
+        `).join('');
+      }
+
+      const completedSection = document.getElementById('completedSection');
+      const completedList = document.getElementById('completedTaskList');
+      const completedCount = document.getElementById('completedCount');
+
+      if (completedTasks.length > 0) {
+        completedSection.classList.remove('hidden');
+        completedCount.textContent = completedTasks.length;
+        completedList.innerHTML = completedTasks.map(task => `
+          <div class="task-item completed" data-id="${task.id}">
+            <button class="checkbox checked" onclick="toggleTask('${task.id}')">✓</button>
+            <span class="task-text">${task.description}</span>
+            <button class="btn-icon delete" onclick="deleteTask('${task.id}')">×</button>
+          </div>
+        `).join('');
+      } else {
+        completedSection.classList.add('hidden');
+      }
+    };
+
+    const renderShopping = () => {
+      const list = document.getElementById('shoppingList');
+      if (shoppingItems.length === 0) {
+        list.innerHTML = '<p class="empty-state">Shopping list is empty.</p>';
+      } else {
+        list.innerHTML = shoppingItems.map(item => `
+          <div class="task-item" data-id="${item.id}">
+            <button class="checkbox" onclick="removeShoppingItem('${item.id}')"></button>
+            <span class="task-text">${item.name}</span>
+            <button class="btn-icon delete" onclick="removeShoppingItem('${item.id}')">×</button>
+          </div>
+        `).join('');
+      }
+      renderRecurring(); // Update shopping preview in routine
+      renderHome(); // Update home counts
+    };
+
+    const renderHome = () => {
+      const { balance } = getTotals();
+      const openTasks = tasks.filter(t => !t.completed);
+      const totalHours = timeEntries.reduce((sum, e) => sum + e.hours, 0);
+      
+      document.getElementById('homeBalanceAmount').textContent = formatCurrency(balance);
+      document.getElementById('homeTaskCount').textContent = `${openTasks.length} open`;
+      document.getElementById('homeShopCount').textContent = `${shoppingItems.length} items`;
+      document.getElementById('homeHoursCount').textContent = `${totalHours}h logged`;
+    };
+
+    const renderRecurring = () => {
+      const list = document.getElementById('recurringList');
+      list.innerHTML = recurringTasks.map((area, areaIdx) => {
+        // Special handling for Shopping area
+        if (area.area === 'Shopping') {
+          const hasItems = shoppingItems.length > 0;
+          return `
+            <div class="area-section">
+              <div class="area-header">
+                <span class="icon">${area.icon}</span> ${area.area}
+              </div>
+              <div class="area-tasks">
+                ${area.tasks.map((task, taskIdx) => {
+                  const key = `${areaIdx}-${taskIdx}`;
+                  const isChecked = recurringChecked[key];
+                  return `
+                    <div class="area-task ${isChecked ? 'checked' : ''}" onclick="toggleRecurring('${key}')">
+                      <button class="checkbox ${isChecked ? 'checked' : ''}">${isChecked ? '✓' : ''}</button>
+                      <span class="task-text">${task}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div class="shopping-preview ${hasItems ? '' : 'empty'}">
+                ${hasItems 
+                  ? `<ul>${shoppingItems.map(item => `<li>${item.name}</li>`).join('')}</ul>`
+                  : '✓ No items on shopping list'
+                }
+              </div>
+            </div>
+          `;
+        }
+        
+        // Regular areas
+        const hasNotes = area.notes.length > 0;
+        return `
+          <div class="area-section">
+            <div class="area-header">
+              <span class="icon">${area.icon}</span> ${area.area}
+              ${hasNotes ? `<button class="info-btn" onclick="showPopup(${areaIdx})">i</button>` : ''}
+            </div>
+            <div class="area-tasks">
+              ${area.tasks.map((task, taskIdx) => {
+                const key = `${areaIdx}-${taskIdx}`;
+                const isChecked = recurringChecked[key];
+                const parts = task.split('|');
+                const mainTask = parts[0];
+                const subText = parts[1];
+                const isOptional = subText === 'optional';
+                return `
+                  <div class="area-task ${isChecked ? 'checked' : ''}" onclick="toggleRecurring('${key}')">
+                    <button class="checkbox ${isChecked ? 'checked' : ''}">${isChecked ? '✓' : ''}</button>
+                    <span class="task-text">
+                      ${mainTask}
+                      ${subText && !isOptional ? `<span class="optional">(${subText})</span>` : ''}
+                      ${isOptional ? '<span class="optional">(optional)</span>' : ''}
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // Popup functions
+    window.showPopup = (areaIdx) => {
+      const area = recurringTasks[areaIdx];
+      document.getElementById('popupIcon').textContent = area.icon;
+      document.getElementById('popupTitle').textContent = area.area;
+      document.getElementById('popupNotes').innerHTML = area.notes.map(note => `<li>${note}</li>`).join('');
+      document.getElementById('popupOverlay').classList.add('active');
+    };
+
+    window.closePopup = () => {
+      document.getElementById('popupOverlay').classList.remove('active');
+    };
+
+    // Close popup when clicking overlay
+    document.getElementById('popupOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'popupOverlay') closePopup();
+    });
+
+    const renderTimeEntries = () => {
+      const list = document.getElementById('timeEntryList');
+      if (timeEntries.length === 0) {
+        list.innerHTML = '<p class="empty-state">No hours logged yet.</p>';
+      } else {
+        list.innerHTML = timeEntries.map(entry => `
+          <div class="entry-item" data-id="${entry.id}">
+            <div class="entry-main">
+              <span class="entry-date">${formatDate(entry.date)}</span>
+              <span class="entry-hours">${entry.hours}h</span>
+              <span class="entry-amount">${formatCurrency(entry.hours * hourlyRate)}</span>
+            </div>
+            ${entry.notes ? `<div class="entry-notes">${entry.notes}</div>` : ''}
+            <div class="entry-actions">
+              <button class="btn-small" onclick="editEntry('${entry.id}')">Edit</button>
+              <button class="btn-small delete" onclick="deleteEntry('${entry.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      }
+    };
+
+    const renderPayments = () => {
+      const { totalEarned, totalPaid, balance } = getTotals();
+
+      document.getElementById('balanceAmount').textContent = formatCurrency(balance);
+      document.getElementById('balanceAmount').className = `balance-amount ${balance > 0 ? 'owed' : 'clear'}`;
+      document.getElementById('totalEarned').textContent = formatCurrency(totalEarned);
+      document.getElementById('totalPaid').textContent = formatCurrency(totalPaid);
+
+      const headerBalance = document.getElementById('headerBalance');
+      if (activeTab === 'payments') {
+        headerBalance.classList.remove('hidden');
+        headerBalance.className = `header-balance ${balance > 0 ? 'owed' : 'clear'}`;
+        headerBalance.textContent = balance > 0 ? `Owe ${formatCurrency(balance)}` : 'All clear';
+      } else {
+        headerBalance.classList.add('hidden');
+      }
+
+      const list = document.getElementById('paymentList');
+      if (payments.length === 0) {
+        list.innerHTML = '<p class="empty-state">No payments recorded yet.</p>';
+      } else {
+        list.innerHTML = payments.map(payment => `
+          <div class="entry-item payment" data-id="${payment.id}">
+            <div class="entry-main">
+              <span class="entry-date">${formatDate(payment.date)}</span>
+              <span class="payment-amount">${formatCurrency(payment.amount)}</span>
+            </div>
+            ${payment.notes ? `<div class="entry-notes">${payment.notes}</div>` : ''}
+          </div>
+        `).join('');
+      }
+    };
+
+    const render = () => {
+      renderTasks();
+      renderTimeEntries();
+      renderPayments();
+      renderHome();
+    };
+
+    // Firebase listeners
+    onSnapshot(query(collection(db, 'tasks'), orderBy('createdAt', 'desc')), (snapshot) => {
+      tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderTasks();
+      renderHome();
+    });
+
+    onSnapshot(query(collection(db, 'shopping'), orderBy('createdAt', 'desc')), (snapshot) => {
+      shoppingItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderShopping();
+    });
+
+    onSnapshot(query(collection(db, 'timeEntries'), orderBy('date', 'desc')), (snapshot) => {
+      timeEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderTimeEntries();
+      renderPayments();
+      renderHome();
+    });
+
+    onSnapshot(query(collection(db, 'payments'), orderBy('date', 'desc')), (snapshot) => {
+      payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderPayments();
+      renderHome();
+    });
+
+    // Task actions
+    window.toggleTask = async (id) => {
+      const task = tasks.find(t => t.id === id);
+      await updateDoc(doc(db, 'tasks', id), {
+        completed: !task.completed,
+        completedAt: !task.completed ? Timestamp.now() : null
+      });
+    };
+
+    window.deleteTask = async (id) => {
+      await deleteDoc(doc(db, 'tasks', id));
+    };
+
+    // Shopping actions
+    window.removeShoppingItem = async (id) => {
+      await deleteDoc(doc(db, 'shopping', id));
+    };
+
+    // Recurring task actions
+    window.toggleRecurring = (key) => {
+      recurringChecked[key] = !recurringChecked[key];
+      localStorage.setItem('recurringChecked', JSON.stringify(recurringChecked));
+      renderRecurring();
+    };
+
+    // Time entry actions
+    window.editEntry = (id) => {
+      const entry = timeEntries.find(e => e.id === id);
+      editingEntryId = id;
+      document.getElementById('entryDate').value = entry.date;
+      document.getElementById('entryHours').value = entry.hours;
+      document.getElementById('entryNotes').value = entry.notes || '';
+      document.getElementById('timeSubmitBtn').textContent = 'Update';
+      document.getElementById('timeCancelBtn').classList.remove('hidden');
+    };
+
+    window.deleteEntry = async (id) => {
+      await deleteDoc(doc(db, 'timeEntries', id));
+      if (editingEntryId === id) {
+        cancelEdit();
+      }
+    };
+
+    const cancelEdit = () => {
+      editingEntryId = null;
+      document.getElementById('entryDate').value = today();
+      document.getElementById('entryHours').value = '';
+      document.getElementById('entryNotes').value = '';
+      document.getElementById('timeSubmitBtn').textContent = 'Log Hours';
+      document.getElementById('timeCancelBtn').classList.add('hidden');
+    };
+
+    // Tab switching
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(`${activeTab}Tab`).classList.add('active');
+        renderPayments(); // Update header balance visibility
+      });
+    });
+
+    // Home card navigation
+    document.querySelectorAll('.home-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const targetTab = card.dataset.goto;
+        activeTab = targetTab;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.nav-btn[data-tab="${targetTab}"]`).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(`${targetTab}Tab`).classList.add('active');
+      });
+    });
+
+    // Toggle completed
+    document.getElementById('toggleCompleted').addEventListener('click', () => {
+      showCompleted = !showCompleted;
+      document.getElementById('toggleCompleted').innerHTML = `${showCompleted ? '▼' : '▶'} Completed (<span id="completedCount">${tasks.filter(t => t.completed).length}</span>)`;
+      document.getElementById('completedTaskList').classList.toggle('hidden', !showCompleted);
+    });
+
+    // Form submissions
+    document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('newTaskInput');
+      if (!input.value.trim()) return;
+      await addDoc(collection(db, 'tasks'), {
+        description: input.value.trim(),
+        createdAt: Timestamp.now(),
+        completed: false
+      });
+      input.value = '';
+    });
+
+    document.getElementById('addShoppingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('newShoppingInput');
+      if (!input.value.trim()) return;
+      await addDoc(collection(db, 'shopping'), {
+        name: input.value.trim(),
+        createdAt: Timestamp.now()
+      });
+      input.value = '';
+    });
+
+    document.getElementById('resetRecurring').addEventListener('click', () => {
+      recurringChecked = {};
+      localStorage.setItem('recurringChecked', JSON.stringify(recurringChecked));
+      renderRecurring();
+    });
+
+    document.getElementById('addTimeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const hours = parseFloat(document.getElementById('entryHours').value);
+      if (!hours || hours <= 0) return;
+
+      const data = {
+        date: document.getElementById('entryDate').value,
+        hours: hours,
+        notes: document.getElementById('entryNotes').value || null
+      };
+
+      if (editingEntryId) {
+        await updateDoc(doc(db, 'timeEntries', editingEntryId), data);
+        cancelEdit();
+      } else {
+        await addDoc(collection(db, 'timeEntries'), { ...data, createdAt: Timestamp.now() });
+      }
+
+      document.getElementById('entryDate').value = today();
+      document.getElementById('entryHours').value = '';
+      document.getElementById('entryNotes').value = '';
+    });
+
+    document.getElementById('timeCancelBtn').addEventListener('click', cancelEdit);
+
+    document.getElementById('addPaymentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('paymentAmount').value);
+      if (!amount || amount <= 0) return;
+
+      await addDoc(collection(db, 'payments'), {
+        date: document.getElementById('paymentDate').value,
+        amount: amount,
+        notes: document.getElementById('paymentNotes').value || null,
+        createdAt: Timestamp.now()
+      });
+
+      document.getElementById('paymentDate').value = today();
+      document.getElementById('paymentAmount').value = '';
+      document.getElementById('paymentNotes').value = '';
+    });
+
+    // Init dates
+    document.getElementById('entryDate').value = today();
+    document.getElementById('paymentDate').value = today();
+
+    // Initial render of recurring tasks and home
+    renderRecurring();
+    renderHome();
+  </script>
+</body>
+</html>
