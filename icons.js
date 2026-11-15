@@ -1,0 +1,27 @@
+const paths={
+ home:'M3 10.5 12 3l9 7.5M5 9v12h5v-7h4v7h5V9',
+ tasks:'M9 5h11v16H4V5h3M9 3h6v4H9zM8 12l2 2 5-5M8 18h8',
+ shop:'M3 4h2l2.5 11h11l2-8H6M9 20h.01M18 20h.01',
+ notes:'M5 3h14v18l-4-3H5zM8 8h8M8 12h6',
+ pay:'M3 6h18v14H3zM3 10h18M16 14h2M6 3h12',
+ check:'m5 12 4 4L19 6',
+ arrow:'m9 5 7 7-7 7',
+ plus:'M12 5v14M5 12h14',
+ clock:'M12 8v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
+ calendar:'M5 5h14v16H5zM8 3v4M16 3v4M5 10h14M9 14h2M13 17h2',
+ alert:'M12 8v5M12 17h.01M12 3 2 21h20z',
+ trash:'M4 6h16M9 3h6M6 6l1 15h10l1-15M10 10v7M14 10v7',
+ close:'m6 6 12 12M18 6 6 18',
+ reset:'M4 10a8 8 0 1 1 1 9M4 4v6h6',
+ laundry:'M4 3h16v18H4zM4 7h16M7 5h.01M10 5h.01M17 14a5 5 0 1 1-10 0 5 5 0 0 1 10 0M7 14c3-3 7 3 10 0',
+ kitchen:'M5 3v7m3-7v7M3 3v5a4 4 0 0 0 8 0V3M7 12v9M18 3c-3 2-4 5-4 9h5M19 3v18',
+ lounge:'M5 11V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v4M3 10v8h18v-8h-4v5H7v-5zM5 18v3M19 18v3',
+ bed:'M3 18V8m18 10V8M3 15h18M5 15V5h14v10M7 9h3v3H7zM14 9h3v3h-3zM3 18v3M21 18v3',
+ nursery:'M12 21c-5 0-9-4-9-9s4-9 9-9 9 4 9 9-4 9-9 9M8 10h.01M16 10h.01M8 15c2 2 6 2 8 0M10 3c0 4 4 4 4 1',
+ dog:'M7 9 3 5v10l4 2m10-8 4-4v10l-4 2M7 7h10v12l-5 3-5-3zM9 12h.01M15 12h.01M10 16h4l-2 2z',
+ post:'M3 5h18v14H3zM3 5l9 8 9-8',
+ leaf:'M20 3C8 2 2 8 6 17c9 4 15-2 14-14M4 21 16 9',
+ info:'M12 11v6M12 7h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
+};
+export function icon(name,className='ui-icon'){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.7');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('class',className);svg.setAttribute('aria-hidden','true');const p=document.createElementNS(svg.namespaceURI,'path');p.setAttribute('d',paths[name]||paths.tasks);svg.append(p);return svg;}
+export const areaIcon={'Shopping':'shop','Pick up the post':'post','Thomas':'dog','Kitchen':'kitchen','Lounge':'lounge','Laundry':'laundry','Bedroom':'bed','Nursery':'nursery','Empty Bins':'trash'};

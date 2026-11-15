@@ -11,178 +11,38 @@
   <meta name="apple-mobile-web-app-title" content="BruScoNo">
   <title>BruScoNo</title>
 
-  <style>
-    [hidden] { display: none !important; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #fafafa; --card: #ffffff; --text: #1a1a1a; --text-muted: #666666;
-      --border: #e0e0e0; --primary: #2563eb; --primary-hover: #1d4ed8;
-      --success: #16a34a; --danger: #dc2626; --owed: #ea580c;
-    }
-    html, body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.5;
-      min-height: 100vh; -webkit-font-smoothing: antialiased;
-    }
-    .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; background: var(--bg); }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-    .header h1 { font-size: 1.25rem; font-weight: 600; }
-    .header-balance { font-size: 0.875rem; font-weight: 500; padding: 4px 10px; border-radius: 20px; }
-    .header-balance.owed { background: #fff7ed; color: var(--owed); }
-    .header-balance.clear { background: #f0fdf4; color: var(--success); }
-    .main { flex: 1; padding: 16px; padding-bottom: 80px; overflow-y: auto; }
-    .tab-content { display: none; animation: fadeIn 0.2s ease; }
-    .tab-content.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .add-form { display: flex; gap: 8px; margin-bottom: 20px; }
-    .add-form .input { flex: 1; }
-    .entry-form, .settings-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; padding: 16px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
-    .form-row { display: flex; gap: 10px; }
-    .form-row .input:first-child { flex: 1; }
-    .hours-input, .amount-input { width: 100px; }
-    .input { padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg); color: var(--text); transition: border-color 0.15s, box-shadow 0.15s; }
-    .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-    .input::placeholder { color: var(--text-muted); }
-    .btn { padding: 12px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-secondary { background: var(--border); color: var(--text); }
-    .btn-icon { width: 32px; height: 32px; border: none; background: transparent; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
-    .btn-icon:hover { background: var(--bg); }
-    .btn-icon.delete:hover { color: var(--danger); background: #fef2f2; }
-    .btn-small { padding: 6px 12px; border: 1px solid var(--border); background: var(--card); border-radius: 6px; font-size: 0.8125rem; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
-    .btn-small:hover { background: var(--bg); color: var(--text); }
-    .btn-small.delete:hover { color: var(--danger); border-color: var(--danger); background: #fef2f2; }
-    .task-list { display: flex; flex-direction: column; gap: 2px; }
-    .task-item { display: flex; align-items: center; gap: 12px; padding: 14px 12px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
-    .task-item.completed { opacity: 0.6; }
-    .task-item.completed .task-text { text-decoration: line-through; }
-    .checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; background: var(--card); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; }
-    .checkbox:hover { border-color: var(--primary); }
-    .checkbox.checked { background: var(--success); border-color: var(--success); color: white; font-size: 0.875rem; }
-    .task-text { flex: 1; font-size: 1rem; }
-    .completed-section { margin-top: 16px; }
-    .toggle-completed { background: none; border: none; color: var(--text-muted); font-size: 0.875rem; cursor: pointer; padding: 8px 0; display: flex; align-items: center; gap: 6px; }
-    .toggle-completed:hover { color: var(--text); }
-    .task-list.completed { margin-top: 8px; }
-    .entry-list { display: flex; flex-direction: column; gap: 8px; }
-    .entry-item { padding: 14px 16px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
-    .entry-main { display: flex; align-items: center; gap: 12px; }
-    .entry-date { font-weight: 500; min-width: 100px; }
-    .entry-hours { color: var(--text-muted); font-size: 0.875rem; }
-    .entry-amount { margin-left: auto; font-weight: 600; color: var(--success); }
-    .payment-amount { margin-left: auto; font-weight: 600; color: var(--primary); }
-    .expense-amount { margin-left: auto; font-weight: 600; color: var(--owed); }
-    .entry-notes { margin-top: 8px; font-size: 0.875rem; color: var(--text-muted); padding-left: 2px; }
-    .entry-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-    .balance-card { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 24px; border-radius: 16px; margin-bottom: 20px; text-align: center; }
-    .balance-label { font-size: 0.875rem; opacity: 0.9; margin-bottom: 4px; }
-    .balance-amount { font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; }
-    .balance-amount.owed { color: #fef3c7; }
-    .balance-amount.clear { color: #bbf7d0; }
-    .balance-breakdown { display: flex; justify-content: center; gap: 16px; font-size: 0.8125rem; opacity: 0.9; flex-wrap: wrap; }
-    .setting-label { font-weight: 500; display: flex; flex-direction: column; gap: 8px; }
-    .rate-input-wrapper { display: flex; align-items: center; gap: 4px; }
-    .currency-symbol { font-size: 1.125rem; color: var(--text-muted); }
-    .rate-input { width: 120px; }
-    .stats { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 16px; }
-    .stat-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .stat-item:last-child { border-bottom: none; }
-    .section-title { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 8px; }
-    .empty-state { text-align: center; color: var(--text-muted); padding: 32px 16px; font-size: 0.9375rem; }
-    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; background: var(--card); border-top: 1px solid var(--border); padding: 8px 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px; border: none; background: none; color: var(--text-muted); cursor: pointer; transition: color 0.15s; }
-    .nav-btn:hover { color: var(--text); }
-    .nav-btn.active { color: var(--primary); }
-    .nav-icon { font-size: 1.25rem; }
-    .nav-label { font-size: 0.6875rem; font-weight: 500; }
-    .hidden { display: none !important; }
-    .home-hero { text-align: center; padding: 32px 16px 24px; }
-    .home-hero h2 { font-size: 2rem; font-weight: 700; margin-bottom: 4px; color: var(--primary); }
-    .home-hero p { color: var(--text-muted); font-size: 0.9375rem; }
-    .home-balance { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; }
-    .home-balance-label { font-size: 0.8125rem; opacity: 0.9; margin-bottom: 4px; }
-    .home-balance-amount { font-size: 2rem; font-weight: 700; }
-    .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .home-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
-    .home-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .home-card-icon { font-size: 1.75rem; }
-    .home-card-label { font-weight: 500; font-size: 0.9375rem; }
-    .home-card-count { font-size: 0.8125rem; color: var(--text-muted); }
-    .recurring-list { display: flex; flex-direction: column; gap: 16px; }
-    .area-section { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-    .area-header { padding: 12px 16px; background: var(--bg); font-weight: 600; font-size: 0.9375rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-    .area-header .icon { font-size: 1.125rem; }
-    .area-header .info-btn { margin-left: auto; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--primary); background: transparent; color: var(--primary); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
-    .area-header .info-btn:hover { background: var(--primary); color: white; }
-    .area-tasks { padding: 8px 0; }
-    .area-task { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background 0.15s; }
-    .area-task:hover { background: var(--bg); }
-    .area-task.checked .task-text { text-decoration: line-through; opacity: 0.5; }
-    .area-task .checkbox { margin-top: 2px; }
-    .area-task .task-text { flex: 1; font-size: 0.9375rem; }
-    .area-task .task-text .sub-text { color: var(--text-muted); font-size: 0.8125rem; display: block; margin-top: 2px; }
-    .shopping-preview { padding: 12px 16px; background: #f0fdf4; border-top: 1px solid #bbf7d0; font-size: 0.875rem; color: #166534; }
-    .shopping-preview.empty { background: var(--bg); border-top: 1px solid var(--border); color: var(--text-muted); }
-    .shopping-preview ul { margin: 0; padding-left: 18px; }
-    .shopping-preview li { margin-bottom: 2px; }
-    .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 100; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
-    .popup-overlay.active { opacity: 1; visibility: visible; }
-    .popup { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); width: 100%; max-width: 480px; background: var(--card); border-radius: 16px 16px 0 0; z-index: 101; transition: transform 0.3s ease-out; max-height: 70vh; overflow-y: auto; }
-    .popup-overlay.active .popup { transform: translateX(-50%) translateY(0); }
-    .popup-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--card); }
-    .popup-header h3 { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-    .popup-close { width: 32px; height: 32px; border: none; background: var(--bg); border-radius: 50%; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
-    .popup-close:hover { background: var(--border); color: var(--text); }
-    .popup-content { padding: 16px 20px 32px; }
-    .popup-content ul { margin: 0; padding-left: 20px; }
-    .popup-content li { margin-bottom: 10px; line-height: 1.5; color: var(--text); }
-    .popup-content li:last-child { margin-bottom: 0; }
-    .textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-    .message-list { display: flex; flex-direction: column; gap: 12px; }
-    .message-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-    .message-item.read { opacity: 0.6; }
-    .message-content { font-size: 0.9375rem; line-height: 1.5; white-space: pre-wrap; }
-    .message-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.8125rem; color: var(--text-muted); }
-    .message-actions { display: flex; gap: 8px; align-items: center; }
-    .message-actions label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
-    .message-actions input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
-  </style>
-  <link rel="stylesheet" href="mobile-release.css?v=20261115-phone-layout">
+
+  <link rel="stylesheet" href="mobile-release.css?v=20261115-clarity">
 </head>
 <body>
   <div class="app">
-    <div id="environmentBanner" style="padding:10px 16px;background:#fff7ed;color:#9a3412;font-size:13px"></div><section id="authPanel" style="padding:20px"><h2>Household sign-in</h2><p>Sign in once on your own device. Your session is remembered until you sign out or clear browser data.</p><button id="googleLogin" class="btn btn-primary">Continue with Google</button><form id="emulatorLogin" class="entry-form" hidden><label>Test email <input id="authEmail" type="email" class="input" required></label><label>Test password <input id="authPassword" type="password" class="input" required></label><button class="btn btn-primary">Sign in to local emulator</button></form><p id="authError" role="alert"></p><button id="authSignOut" class="btn-small" hidden>Sign out / use another account</button></section><div id="appContent" hidden><header class="header">
-      <h1><span class="home-logo">⌂</span> BruScoNo</h1><button id="signOut" class="btn-small">Sign out</button>
+    <div id="environmentBanner" style="padding:10px 16px;background:#fff7ed;color:#9a3412;font-size:13px"></div><section id="authPanel" style="padding:20px"><span class="auth-mark" data-icon="home"></span><h2>Welcome home.</h2><p>Your household, in one place.</p><button id="googleLogin" class="btn btn-primary">Continue with Google</button><form id="emulatorLogin" class="entry-form" hidden><label>Test email <input id="authEmail" type="email" class="input" required></label><label>Test password <input id="authPassword" type="password" class="input" required></label><button class="btn btn-primary">Sign in to local emulator</button></form><p id="authError" role="alert"></p><button id="authSignOut" class="btn-small" hidden>Sign out / use another account</button></section><div id="appContent" hidden><header class="header">
+      <h1><span class="home-logo" data-icon="home"></span>BruScoNo</h1><details class="account-menu"><summary aria-label="Account"><span id="accountInitial">B</span></summary><div><strong id="accountName">Household</strong><button id="signOut" class="btn-small">Sign out</button></div></details>
       <div id="headerBalance" class="header-balance hidden"></div>
     </header>
 
     <div class="global-status"><p id="legacyNotice" style="margin-top:8px;padding:10px;background:#fff7ed;color:#9a3412;font-size:13px" role="status">New-role balances exclude unassigned legacy history. Do not use these totals to settle pay until historical ownership is confirmed.</p><p id="syncStatus" role="status" style="font-size:13px;color:#666"></p><p id="dataError" role="alert" style="color:#b91c1c"></p></div><main class="main">
       <div id="homeTab" class="tab-content active">
- <p id="homeDate" class="muted date-line"></p>
- <h2 id="homeGreeting" class="page-title">Welcome home.</h2>
- <p class="welcome-copy">A little organisation for a smoother day.</p>
- <p class="muted welcome-summary" id="homeSummary">Checking household updates…</p>
- <button class="routine-shortcut" data-mobile-tab="recurring"><strong>Start with the shift routine</strong><span>The usual jobs, ready to check off.</span></button>
- <nav class="home-directory" aria-label="Find your way">
-  <button data-mobile-tab="tasks"><span><strong>Tasks</strong><small>One-off jobs and the shift routine</small></span><span aria-hidden="true">›</span></button>
-  <button data-mobile-tab="shopping"><span><strong>Shopping</strong><small>What the household needs</small></span><span aria-hidden="true">›</span></button>
-  <button data-mobile-tab="messages"><span><strong>Notes</strong><small>Updates and handovers for each other</small></span><span aria-hidden="true">›</span></button>
-  <button id="homePayLink" data-mobile-tab="payments"><span><strong>Hours &amp; pay</strong><small>Log work, expenses and payment history</small></span><span aria-hidden="true">›</span></button>
- </nav>
- <div class="quick-actions"><button class="btn btn-primary" id="homePrimary">Log hours</button><button class="btn btn-secondary" id="homeSecondary">Add expense</button></div>
+ <div class="welcome-heading"><h2 id="homeGreeting" class="page-title">Hello.</h2><p id="homeDate" class="muted"></p></div>
+ <div id="homeAttention" class="attention-list" aria-label="Needs attention"></div>
+ <p class="muted" id="homeSummary">Checking updates…</p>
+ <button class="shift-start" data-mobile-tab="recurring">
+  <span class="shift-icon" data-icon="tasks"></span><span class="shift-copy"><strong id="shiftActionLabel">Start your shift</strong><span id="homeRoutineProgress">Your room-by-room checklist</span></span><span data-icon="arrow"></span>
+  <progress id="homeRoutineBar" max="1" value="0" aria-label="Shift routine progress"></progress>
+ </button>
+ <div class="home-work-actions"><button class="btn btn-primary" id="homePrimary">Log hours</button><button class="btn btn-secondary" id="homeSecondary">Add expense</button></div>
+ <button id="homePayLink" class="text-link" data-mobile-tab="payments"><span data-icon="pay"></span>Hours &amp; payment history<span data-icon="arrow"></span></button>
  <span id="homeBalanceAmount" hidden></span><span id="homeShopCount" hidden></span><span id="homeNotesCount" hidden></span><span id="homeRoutineCount" hidden></span>
  </div>
       <!-- Tasks Tab -->
-      <div id="tasksTab" class="tab-content"><h2 class="page-title">Tasks</h2><div class="subnav"><strong>Household list</strong><button data-mobile-tab="recurring">Shift routine</button></div>
+      <div id="tasksTab" class="tab-content"><h2 class="page-title">Tasks</h2><div class="subnav"><strong>One-off tasks</strong><button data-mobile-tab="recurring">Shift routine</button></div>
         <form id="addTaskForm" class="add-form">
           <input type="text" id="newTaskInput" aria-label="New household task" class="input" placeholder="Add a task...">
           <button type="submit" class="btn btn-primary">Add</button>
         </form>
         <div id="taskList" class="task-list"></div>
         <div id="completedSection" class="completed-section hidden">
-          <button id="toggleCompleted" class="toggle-completed">▶ Completed (<span id="completedCount">0</span>)</button>
+          <button id="toggleCompleted" class="toggle-completed">Completed (<span id="completedCount">0</span>)</button>
           <div id="completedTaskList" class="task-list completed hidden"></div>
         </div>
       </div>
@@ -197,19 +57,18 @@
       </div>
 
       <!-- Recurring Tasks Tab -->
-      <div id="recurringTab" class="tab-content"><h2 class="page-title">Tasks</h2><div class="subnav"><button data-mobile-tab="tasks">Household list</button><strong>Shift routine</strong></div>
-        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 16px;">Standard tasks for each shift. Checks stay on this device only and are not synchronised. Use Reset All Tasks for a new shift.</p>
-        <button id="resetRecurring" class="btn btn-secondary" style="margin-bottom: 16px; width: 100%;">Reset All Tasks</button>
+      <div id="recurringTab" class="tab-content"><h2 class="page-title">Shift routine</h2><div class="subnav"><button data-mobile-tab="tasks">One-off tasks</button><strong>Shift routine</strong></div>
+        <div class="routine-overview"><div><strong id="routineCount">0 done</strong><span class="muted">Saved on this device</span></div><button id="resetRecurring" class="btn-small"><span data-icon="reset"></span>New shift</button><progress id="routineBar" max="1" value="0" aria-label="Shift routine progress"></progress></div>
         <div id="recurringList" class="recurring-list"></div>
       </div>
 
       <!-- Messages Tab -->
-      <div id="messagesTab" class="tab-content"><h2 class="page-title">Notes</h2>
+      <div id="messagesTab" class="tab-content"><h2 class="page-title">Notes</h2><details id="noteComposer" class="note-composer"><summary><span data-icon="plus"></span>Write a note</summary>
         <form id="addMessageForm" class="entry-form">
           <textarea id="newMessageInput" aria-label="Note for the household" class="input textarea" placeholder="Leave a note..." rows="3"></textarea>
           <button type="submit" class="btn btn-primary">Post Note</button>
         </form>
-        <div id="messageList" class="message-list"></div>
+        </details><div id="messageList" class="message-list"></div>
       </div>
 
       <!-- Timesheet Tab -->
@@ -240,9 +99,9 @@
       </div>
 
       <!-- Payments Tab -->
-      <div id="paymentsTab" class="tab-content"><h2 class="page-title">Hours &amp; pay</h2><div class="pay-person"><label>Payroll view <select id="workerSelect" class="input" style="padding:8px"></select></label><p id="workerStatus" style="font-size:13px;color:#666;margin-top:6px"></p></div><div class="quick-actions pay-actions"><button class="btn btn-primary" data-sheet="addTimeForm">Log hours</button><button class="btn btn-secondary" data-sheet="addExpenseForm">Add expense</button><button class="btn btn-secondary" id="recordPaymentShortcut" data-sheet="addPaymentForm">Record payment</button></div>
+      <div id="paymentsTab" class="tab-content"><h2 class="page-title">Hours &amp; pay</h2><div class="pay-person"><label id="workerSelectLabel">Person <select id="workerSelect" class="input"></select></label><p id="workerStatus" class="muted"></p></div><div class="quick-actions pay-actions"><button class="btn btn-primary" data-sheet="addTimeForm">Log hours</button><button class="btn btn-secondary" data-sheet="addExpenseForm">Add expense</button><button class="btn btn-secondary" id="recordPaymentShortcut" data-sheet="addPaymentForm">Record payment</button></div>
         <div class="balance-card">
-          <div class="balance-label">Total Owed</div>
+          <div class="balance-label">Balance owing</div>
           <div id="balanceAmount" class="balance-amount">$0.00</div>
           <div class="balance-breakdown">
             <span>Hours: <span id="totalEarned">$0.00</span></span>
@@ -268,7 +127,7 @@
         <section id="paymentHistoryPanel" aria-labelledby="paymentHistoryTitle">
           <h3 id="paymentHistoryTitle" class="section-title">Payment history</h3>
           <p id="paymentHistorySummary" class="muted">Checking payment history…</p>
-          <p class="muted">Each payment’s date, amount and notes, newest first.</p>
+
           <div id="paymentList" class="entry-list"></div>
         </section>
         <section id="workHistoryPanel" aria-labelledby="workHistoryTitle" hidden>
@@ -283,7 +142,7 @@
       <div class="popup">
         <div class="popup-header">
           <h3><span id="popupIcon"></span> <span id="popupTitle"></span></h3>
-          <button class="popup-close" onclick="closePopup()">×</button>
+          <button class="popup-close" aria-label="Close instructions" onclick="closePopup()">×</button>
         </div>
         <div class="popup-content">
           <ul id="popupNotes"></ul>
@@ -291,9 +150,9 @@
       </div>
     </div>
 
-<nav class="nav" aria-label="Main navigation"><button class="nav-btn active" data-tab="home"><span class="nav-icon" aria-hidden="true">⌂</span><span class="nav-label">Today</span></button><button class="nav-btn " data-tab="tasks"><span class="nav-icon" aria-hidden="true">☑</span><span class="nav-label">Tasks</span></button><button class="nav-btn " data-tab="shopping"><span class="nav-icon" aria-hidden="true">♧</span><span class="nav-label">Shop</span></button><button class="nav-btn " data-tab="messages"><span class="nav-icon" aria-hidden="true">☷</span><span class="nav-label">Notes</span></button><button class="nav-btn " data-tab="payments"><span class="nav-icon" aria-hidden="true">$</span><span class="nav-label">Pay</span></button></nav>
+<nav class="nav" aria-label="Main navigation"><button class="nav-btn active" data-tab="home" aria-current="page"><span class="nav-symbol"><span data-icon="home"></span><span id="navBadge-home" class="nav-badge" hidden></span></span><span class="nav-label">Today</span></button><button class="nav-btn" data-tab="tasks"><span class="nav-symbol"><span data-icon="tasks"></span><span id="navBadge-tasks" class="nav-badge" hidden></span></span><span class="nav-label">Tasks</span></button><button class="nav-btn" data-tab="shopping"><span class="nav-symbol"><span data-icon="shop"></span><span id="navBadge-shopping" class="nav-badge" hidden></span></span><span class="nav-label">Shop</span></button><button class="nav-btn" data-tab="messages"><span class="nav-symbol"><span data-icon="notes"></span><span id="navBadge-messages" class="nav-badge" hidden></span></span><span class="nav-label">Notes</span></button><button class="nav-btn" data-tab="payments"><span class="nav-symbol"><span data-icon="pay"></span><span id="navBadge-payments" class="nav-badge" hidden></span></span><span class="nav-label">Pay</span></button></nav>
   </div>
 
   </div><script src="config.js"></script>
-  <script type="module" src="app.js?v=20261115-laundry-instructions"></script>
+  <script type="module" src="app.js?v=20261115-clarity"></script>
 </body></html>
