@@ -1,7 +1,7 @@
 import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-payment-history';
 import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
-import {recurringTasks} from './routines.js';
+import {recurringTasks} from './routines.js?v=20261115-routine-update';
 const $=id=>document.getElementById(id);
 const money=x=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(x);
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
@@ -11,7 +11,23 @@ const formIds=['addTaskForm','addShoppingForm','addMessageForm','addTimeForm','a
 const state={tasks:[],shopping:[],messages:[],timeEntries:[],payments:[],expenses:[],workers:[]};
 let user,member,backend,workerId='amy',editId=null,unsubs=[],loaded=new Set(),busy=new Map(),contextEpoch=0,viewEpoch=0,activeTab='home',routineChecks=loadRoutineChecks();
 const syncState={};
-function loadRoutineChecks(){try{const raw=JSON.parse(localStorage.getItem('recurringChecked')||'{}');if(!raw||Array.isArray(raw)||typeof raw!=='object')return {};return Object.fromEntries(Object.entries(raw).filter(([k,v])=>/^\d+-\d+$/.test(k)&&typeof v==='boolean').slice(0,1000));}catch{return {};}}
+function loadRoutineChecks(){
+ try{
+  const raw=JSON.parse(localStorage.getItem('recurringChecked')||'{}');
+  if(!raw||Array.isArray(raw)||typeof raw!=='object')return {};
+  const checks=Object.fromEntries(Object.entries(raw).filter(([k,v])=>/^\d+-\d+$/.test(k)&&typeof v==='boolean').slice(0,1000));
+  if(localStorage.getItem('recurringRevision')!=='20261115-routine-update'){
+   // Removing the vegetable-prep row moves the two unchanged kitchen tasks.
+   const surfaces=checks['3-3'],tower=checks['3-4'];
+   for(const key of ['0-0','2-0','3-2','3-3','3-4','3-5','5-0','5-1'])delete checks[key];
+   if(typeof surfaces==='boolean')checks['3-2']=surfaces;
+   if(typeof tower==='boolean')checks['3-3']=tower;
+   localStorage.setItem('recurringChecked',JSON.stringify(checks));
+   localStorage.setItem('recurringRevision','20261115-routine-update');
+  }
+  return checks;
+ }catch{return {};}
+}
 function saveRoutineChecks(){try{localStorage.setItem('recurringChecked',JSON.stringify(routineChecks));}catch{failure(Error('Routine changes could not be saved on this device.'));}}
 const financial=['timeEntries','payments','expenses'];
 const visible=name=>state[name].filter(e=>e.workerId===workerId&&!e.voided);
@@ -33,7 +49,7 @@ async function action(key,fn){
  catch(e){if(isCurrent())failure(e);}
  finally{if(busy.get(key)===token)busy.delete(key);if(isCurrent())render();}
 }
-function switchTab(tab){activeTab=tab;if(tab==='payments')showPayHistory('payments');document.querySelectorAll('.tab-content').forEach(n=>n.classList.toggle('active',n.id===tab+'Tab'));document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active',n.dataset.tab===(['timesheet','expenses'].includes(tab)?'payments':tab==='recurring'?'tasks':tab)));}
+function switchTab(tab){activeTab=tab;if(tab==='payments')showPayHistory('payments');document.querySelectorAll('.tab-content').forEach(n=>n.classList.toggle('active',n.id===tab+'Tab'));document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active',n.dataset.tab===(['timesheet','expenses'].includes(tab)?'payments':tab==='recurring'?'tasks':tab)));document.querySelector('.main').scrollTop=0;}
 function cancelEdit(){editId=null;$('timeSubmitBtn').textContent='Log Hours';$('timeCancelBtn').classList.add('hidden');$('entryDate').value=today();$('entryHours').value='';$('entryNotes').value='';}
 function renderWorkers(){const select=$('workerSelect');select.replaceChildren();const choices=member?.role==='worker'?[member.workerId]:(window.HOUSEHOLD_CONFIG.legacyAttributionConfirmed?['amy','ella']:['amy','ella','legacy']);for(const id of choices){const o=el('option',id==='legacy'?'Legacy · unassigned':(state.workers.find(w=>w.id===id)?.displayName||id));o.value=id;select.append(o);}if(!choices.includes(workerId))workerId=choices[0];select.value=workerId;select.disabled=busy.size>0||member?.role==='agent';}
 function render(){

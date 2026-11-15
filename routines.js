@@ -2,7 +2,7 @@ export const recurringTasks = [
       {
         area: 'Shopping',
         icon: '🛒',
-        tasks: ['Pick up dinner veges and any adhoc items on the Shop list'],
+        tasks: ['Check full-cream milk (St Davids Dairy), green apples and free-range eggs; buy any that have run out'],
         notes: []
       },
       {
@@ -14,7 +14,7 @@ export const recurringTasks = [
       {
         area: 'Thomas',
         icon: '🐕',
-        tasks: ['60 min walk OR drop/pick up from Doggy Daycare', 'Check water bowl'],
+        tasks: ['40 min walk OR drop/pick up from Doggy Daycare', 'Check water bowl'],
         notes: [
           'Lead & poo bags in study cupboard',
           'Can go off leash at Vic Park and down by the Yarra river',
@@ -28,10 +28,9 @@ export const recurringTasks = [
         tasks: [
           'Unpack / repack dishwasher and put on if full',
           'Clean out fridge',
-          'Prep a tray of roasted veggies for dinner|Buy, chop up and put on tray, we\'ll chuck in the oven before dinner',
           'Tidy and wipe down surfaces',
           'Wipe down toddler tower',
-          'Restock dish towels and baby face washers in qantas cart'
+          'Ensure clean tea towels in the Qantas cart and restock baby face washers'
         ],
         notes: [
           'Dishwasher tablets are above the stove on the right hand side',
@@ -47,11 +46,12 @@ export const recurringTasks = [
       {
         area: 'Laundry',
         icon: '🧺',
-        tasks: ['Put washing on', 'Hang washing out (or if socks/jocks/towels put in dryer)'],
+        tasks: ['Separate laundry into three load types: whites; coloured clothes; socks/jocks/towels/dish towels. Use the hand-wash cycle for clothes', 'Hang clothes out; put socks, jocks, towels and dish towels in the dryer'],
         notes: [
           'Basket in Bruce & Scott\'s bedroom',
-          'Socks/jocks/towels/sheets → quick cycle + dryer',
-          'Clothes → cold/gentle cycle + hang on clothes horse'
+          'Keep whites, coloured clothes, and socks/jocks/towels/dish towels in three separate load types',
+          'Socks/jocks/towels/dish towels/sheets → quick cycle + dryer',
+          'White and coloured clothes → separate loads, cold hand-wash cycle + hang on clothes horse'
         ]
       },
       {
