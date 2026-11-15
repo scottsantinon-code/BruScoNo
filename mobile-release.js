@@ -2,6 +2,10 @@ const $=id=>document.getElementById(id);
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;};
 const money=n=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(n);
 const titles={addTimeForm:'Log hours',addExpenseForm:'Add an expense',addPaymentForm:'Record a payment'};
+export function showPayHistory(view='payments'){
+ $('paymentHistoryPanel').hidden=view!=='payments';$('workHistoryPanel').hidden=view!=='work';
+ document.querySelectorAll('[data-pay-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.payView===view)));
+}
 export function setupMobile(switchTab){
  for(const [id,title] of Object.entries(titles)){
   const dialog=node('dialog',null,'entry-sheet');dialog.id='sheet-'+id;
@@ -13,6 +17,7 @@ export function setupMobile(switchTab){
  }
  document.querySelectorAll('[data-mobile-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.mobileTab));
  document.querySelectorAll('[data-sheet]').forEach(b=>b.onclick=()=>$( 'sheet-'+b.dataset.sheet).showModal());
+ document.querySelectorAll('[data-pay-view]').forEach(b=>b.onclick=()=>showPayHistory(b.dataset.payView));
  $('workerSelect').addEventListener('change',()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
  $('homeDate').textContent=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 }
@@ -40,12 +45,14 @@ export function renderMobile({user,member,state,workerId,loaded,financialBusy,in
   const row=node('button',null,'person-pay');row.type='button';const text=node('span');text.append(node('strong',worker?.displayName||id),node('small',Number.isFinite(worker?.hourlyRate)?money(worker.hourlyRate)+'/hour':'Checking rate…'));row.append(text,node('strong',!ready?'Checking…':invalidWorker||!Number.isFinite(amount)?'Review required':money(amount)));row.onclick=()=>{if(admin){$('workerSelect').value=id;$('workerSelect').dispatchEvent(new Event('change'));}switchTab('payments');};pay.append(row);
  }
  const combined=$('combinedActivity');combined.replaceChildren();const rows=[];
- for(const [id,label] of [['timeEntryList','Hours'],['expenseList','Expense'],['paymentList','Payment']])for(const child of Array.from($(id).children)){
+ for(const [id,label] of [['timeEntryList','Hours'],['expenseList','Expense']])for(const child of Array.from($(id).children)){
   if(!child.classList.contains('entry-item'))continue;
   const date=child.querySelector('.entry-date')?.textContent||'';child.prepend(node('p',label,'activity-type'));rows.push({date,child});
  }
  rows.sort((a,b)=>b.date.localeCompare(a.date));combined.append(...rows.map(x=>x.child));
  if(!rows.length)combined.append(node('p',ready?'No entries for this person.':'Checking current history…','empty-state'));
+ const paymentCount=state.payments.filter(e=>e.workerId===workerId&&!e.voided).length;
+ $('paymentHistorySummary').textContent=loaded.has('payments')?`${paymentCount} ${paymentCount===1?'payment':'payments'} recorded`:'Checking payment history…';
  // Field disabling remains owned by the tested financial controller.
  document.querySelectorAll('[data-sheet]').forEach(b=>b.disabled=financialBusy||agent);
  document.querySelectorAll('.sheet-person').forEach(n=>n.textContent=state.workers.find(w=>w.id===workerId)?.displayName||workerId);

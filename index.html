@@ -149,7 +149,7 @@
     .message-actions label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
     .message-actions input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
   </style>
-<link rel="stylesheet" href="mobile-release.css">
+<link rel="stylesheet" href="mobile-release.css?v=20261115-payment-history">
 </head>
 <body>
   <div class="app">
@@ -255,8 +255,20 @@
           <button type="submit" class="btn btn-primary">Record Payment</button>
         </form>
 
-        <h3 class="section-title">Activity</h3><div id="combinedActivity"></div>
-        <div id="paymentList" class="entry-list" hidden></div>
+        <nav class="subnav pay-history-nav" aria-label="Pay history views">
+          <button type="button" data-pay-view="payments" aria-pressed="true" aria-controls="paymentHistoryPanel">Payment history</button>
+          <button type="button" data-pay-view="work" aria-pressed="false" aria-controls="workHistoryPanel">Hours &amp; expenses</button>
+        </nav>
+        <section id="paymentHistoryPanel" aria-labelledby="paymentHistoryTitle">
+          <h3 id="paymentHistoryTitle" class="section-title">Payment history</h3>
+          <p id="paymentHistorySummary" class="muted">Checking payment history…</p>
+          <p class="muted">Each payment’s date, amount and notes, newest first.</p>
+          <div id="paymentList" class="entry-list"></div>
+        </section>
+        <section id="workHistoryPanel" aria-labelledby="workHistoryTitle" hidden>
+          <h3 id="workHistoryTitle" class="section-title">Hours &amp; expenses</h3>
+          <div id="combinedActivity"></div>
+        </section>
       </div>
     </main>
 
@@ -277,5 +289,5 @@
   </div>
 
   </div><script src="config.js"></script>
-  <script type="module" src="app.js?v=20261115-signin1"></script>
+  <script type="module" src="app.js?v=20261115-payment-history"></script>
 </body></html>

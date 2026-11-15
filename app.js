@@ -1,4 +1,4 @@
-import {setupMobile,renderMobile} from './mobile-release.js';
+import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-payment-history';
 import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
 import {recurringTasks} from './routines.js';
@@ -33,7 +33,7 @@ async function action(key,fn){
  catch(e){if(isCurrent())failure(e);}
  finally{if(busy.get(key)===token)busy.delete(key);if(isCurrent())render();}
 }
-function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-content').forEach(n=>n.classList.toggle('active',n.id===tab+'Tab'));document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active',n.dataset.tab===(['timesheet','expenses'].includes(tab)?'payments':tab==='recurring'?'tasks':tab)));}
+function switchTab(tab){activeTab=tab;if(tab==='payments')showPayHistory('payments');document.querySelectorAll('.tab-content').forEach(n=>n.classList.toggle('active',n.id===tab+'Tab'));document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active',n.dataset.tab===(['timesheet','expenses'].includes(tab)?'payments':tab==='recurring'?'tasks':tab)));}
 function cancelEdit(){editId=null;$('timeSubmitBtn').textContent='Log Hours';$('timeCancelBtn').classList.add('hidden');$('entryDate').value=today();$('entryHours').value='';$('entryNotes').value='';}
 function renderWorkers(){const select=$('workerSelect');select.replaceChildren();const choices=member?.role==='worker'?[member.workerId]:(window.HOUSEHOLD_CONFIG.legacyAttributionConfirmed?['amy','ella']:['amy','ella','legacy']);for(const id of choices){const o=el('option',id==='legacy'?'Legacy · unassigned':(state.workers.find(w=>w.id===id)?.displayName||id));o.value=id;select.append(o);}if(!choices.includes(workerId))workerId=choices[0];select.value=workerId;select.disabled=busy.size>0||member?.role==='agent';}
 function render(){
