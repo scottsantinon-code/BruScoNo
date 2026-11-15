@@ -1,6 +1,6 @@
 import {icon,areaIcon} from './icons.js';
 import {taskGroups,shortDate,routineProgress,validDay} from './ui-model.js?v=20261115-spare-time';
-import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-spare-time';
+import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261116-routine';
 import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
 import {recurringTasks} from './routines.js?v=20261115-laundry-instructions';
@@ -62,7 +62,7 @@ async function action(key,fn){
  catch(e){if(isCurrent())failure(e);}
  finally{if(busy.get(key)===token)busy.delete(key);if(isCurrent()){const restore=document.activeElement===pendingFocus||document.activeElement===document.body;render();if(restore)restoreFocus(focus);}}
 }
-function switchTab(tab){activeTab=tab;if(tab==='payments')showPayHistory('payments');document.querySelectorAll('.tab-content').forEach(n=>n.classList.toggle('active',n.id===tab+'Tab'));document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active',n.dataset.tab===(['timesheet','expenses'].includes(tab)?'payments':tab==='recurring'?'tasks':tab)));document.querySelectorAll('.nav-btn').forEach(n=>{if(n.classList.contains('active'))n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});document.querySelector('.main').scrollTop=0;}
+function switchTab(tab){activeTab=tab;if(tab==='payments')showPayHistory('payments');document.querySelectorAll('.tab-content').forEach(n=>n.classList.toggle('active',n.id===tab+'Tab'));document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active',n.dataset.tab===(['timesheet','expenses'].includes(tab)?'payments':tab==='tasks'?'recurring':tab)));document.querySelectorAll('.nav-btn').forEach(n=>{if(n.classList.contains('active'))n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');});document.querySelector('.main').scrollTop=0;}
 function cancelEdit(){editId=null;$('timeSubmitBtn').textContent='Log Hours';$('timeCancelBtn').classList.add('hidden');$('entryDate').value=today();$('entryHours').value='';$('entryNotes').value='';}
 function renderWorkers(){const select=$('workerSelect');select.replaceChildren();const choices=member?.role==='worker'?[member.workerId]:(window.HOUSEHOLD_CONFIG.legacyAttributionConfirmed?['amy','ella']:['amy','ella','legacy']);for(const id of choices){const o=el('option',id==='legacy'?'Legacy · unassigned':(state.workers.find(w=>w.id===id)?.displayName||id));o.value=id;select.append(o);}if(!choices.includes(workerId))workerId=choices[0];select.value=workerId;select.disabled=busy.size>0||member?.role==='agent';}
 function render(){
@@ -99,7 +99,7 @@ function taskRow(t){
 function renderTasks(){
  const list=$('taskList');list.replaceChildren();
  for(const group of taskGroups(state.tasks)){const section=el('section',null,'task-group '+group.key);section.id='tasks-'+group.key;const head=el('h3',null,'list-heading');if(group.key==='spare-time')head.append(icon('leaf'));head.append(el('span',group.label),el('span',group.tasks.length,'count-label'));section.append(head,...group.tasks.map(taskRow));list.append(section);}
- if(!list.children.length)list.append(el('p',loaded.has('tasks')?'All caught up. Add a task when something comes up.':'Loading tasks…','empty-state'));
+ if(!list.children.length)list.append(el('p',loaded.has('tasks')?'No extra tasks. Your daily routine is above.':'Loading tasks…','empty-state'));
  const done=state.tasks.filter(t=>t.completed);$('completedTaskList').replaceChildren(...done.map(taskRow));$('completedCount').textContent=done.length;$('completedSection').classList.toggle('hidden',!done.length);
 }
 function renderShopping(){const list=$('shoppingList');list.replaceChildren();for(const item of state.shopping){const row=el('div',null,'task-item');const check=iconButton('check','Mark bought: '+item.name,()=>action('shop:'+item.id,()=>backend.remove('shopping',item.id)),'checkbox');check.disabled=busy.has('shop:'+item.id);keyed(check,'shop:'+item.id);row.append(check,el('span',item.name,'task-text'));list.append(row);}if(!state.shopping.length)list.append(el('p',loaded.has('shopping')?'Nothing to pick up. Add an item above.':'Loading shopping…','empty-state'));}
@@ -118,7 +118,13 @@ function renderRoutine(){
  const focused=document.activeElement?.dataset.routineKey;
  const progress=routineProgress(recurringTasks,routineChecks);
  for(const id of ['homeRoutineBar','routineBar']){$(id).max=progress.total;$(id).value=progress.done;}
- $('routineCount').textContent=progress.done+' of '+progress.total+' done';$('homeRoutineProgress').textContent=progress.done?progress.done+' of '+progress.total+' done':'Your room-by-room checklist';$('shiftActionLabel').textContent=progress.done===progress.total?'Shift routine complete':progress.done?'Continue your shift':'Start your shift';
+ const remaining=progress.total-progress.done,summary=progress.done+' of '+progress.total+' done';
+ $('routineCount').textContent=summary;
+ $('homeRoutineProgress').textContent=remaining?summary+' · '+remaining+' left':summary+' · Complete';
+ $('tasksRoutineProgress').textContent=$('homeRoutineProgress').textContent;
+ $('shiftActionLabel').textContent='Daily routine';
+ const badge=$('navBadge-recurring');badge.hidden=!remaining;badge.textContent=remaining;
+ badge.closest('button').setAttribute('aria-label',remaining?'Routine, '+remaining+' left':'Routine, complete');
  const list=$('recurringList');list.replaceChildren();
  recurringTasks.forEach((area,i)=>{const section=el('section',null,'area-section');const header=el('div',null,'area-header');const done=area.tasks.filter((_,j)=>routineChecks[i+'-'+j]).length;header.append(icon(areaIcon[area.area]),el('h3',area.area),el('span',done+'/'+area.tasks.length,'area-count'+(done===area.tasks.length?' is-done':'')));section.append(header);
  area.tasks.forEach((text,j)=>{const key=i+'-'+j,checked=!!routineChecks[key];const row=el('div',null,'area-task'+(checked?' checked':''));const check=iconButton('check',text.replace('|',' — '),()=>{routineChecks[key]=!routineChecks[key];saveRoutineChecks();renderRoutine();},'checkbox'+(checked?' checked':''));check.dataset.routineKey=key;check.setAttribute('role','checkbox');check.setAttribute('aria-checked',String(checked));row.append(check,el('span',text.replace('|',' · '),'task-text'));section.append(row);});

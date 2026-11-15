@@ -12,7 +12,7 @@
   <title>BruScoNo</title>
 
 
-  <link rel="stylesheet" href="mobile-release.css?v=20261115-spare-time">
+  <link rel="stylesheet" href="mobile-release.css?v=20261116-routine">
 </head>
 <body>
   <div class="app">
@@ -27,8 +27,8 @@
  <div id="homeAttention" class="attention-list" aria-label="Needs attention"></div>
  <p class="muted" id="homeSummary">Checking updates…</p>
  <button class="shift-start" data-mobile-tab="recurring">
-  <span class="shift-icon" data-icon="tasks"></span><span class="shift-copy"><strong id="shiftActionLabel">Start your shift</strong><span id="homeRoutineProgress">Your room-by-room checklist</span></span><span data-icon="arrow"></span>
-  <progress id="homeRoutineBar" max="1" value="0" aria-label="Shift routine progress"></progress>
+  <span class="shift-icon" data-icon="tasks"></span><span class="shift-copy"><strong id="shiftActionLabel">Daily routine</strong><span id="homeRoutineProgress">Your daily checklist</span></span><span data-icon="arrow"></span>
+  <progress id="homeRoutineBar" max="1" value="0" aria-label="Daily routine progress"></progress>
  </button>
  <button id="homeSpareTasks" class="text-link spare-link" hidden></button>
  <div class="home-work-actions"><button class="btn btn-primary" id="homePrimary">Log hours</button><button class="btn btn-secondary" id="homeSecondary">Add expense</button></div>
@@ -36,7 +36,7 @@
  <span id="homeBalanceAmount" hidden></span><span id="homeShopCount" hidden></span><span id="homeNotesCount" hidden></span><span id="homeRoutineCount" hidden></span>
  </div>
       <!-- Tasks Tab -->
-      <div id="tasksTab" class="tab-content"><h2 class="page-title">Tasks</h2><div class="subnav"><strong>One-off tasks</strong><button data-mobile-tab="recurring">Shift routine</button></div>
+      <div id="tasksTab" class="tab-content"><h2 class="page-title">Extra tasks</h2><button class="routine-shortcut" data-mobile-tab="recurring"><span data-icon="tasks"></span><span><strong>Daily routine</strong><span id="tasksRoutineProgress">Your daily checklist</span></span><span data-icon="arrow"></span></button>
         <form id="addTaskForm" class="add-form task-composer">
           <input type="text" id="newTaskInput" aria-label="New household task" class="input" placeholder="Add a task...">
           <button type="submit" class="btn btn-primary">Add</button>
@@ -59,8 +59,8 @@
       </div>
 
       <!-- Recurring Tasks Tab -->
-      <div id="recurringTab" class="tab-content"><h2 class="page-title">Shift routine</h2><div class="subnav"><button data-mobile-tab="tasks">One-off tasks</button><strong>Shift routine</strong></div>
-        <div class="routine-overview"><div><strong id="routineCount">0 done</strong><span class="muted">Saved on this device</span></div><button id="resetRecurring" class="btn-small"><span data-icon="reset"></span>New shift</button><progress id="routineBar" max="1" value="0" aria-label="Shift routine progress"></progress></div>
+      <div id="recurringTab" class="tab-content"><h2 class="page-title">Daily routine</h2><div class="subnav"><strong>Daily routine</strong><button data-mobile-tab="tasks">Extra tasks <span id="routineExtraCount" class="extra-count" hidden></span></button></div>
+        <div class="routine-overview"><div><strong id="routineCount">0 done</strong><span class="muted">Saved on this device</span></div><button id="resetRecurring" class="btn-small"><span data-icon="reset"></span>New shift</button><progress id="routineBar" max="1" value="0" aria-label="Daily routine progress"></progress></div>
         <div id="recurringList" class="recurring-list"></div>
       </div>
 
@@ -152,9 +152,9 @@
       </div>
     </div>
 
-<nav class="nav" aria-label="Main navigation"><button class="nav-btn active" data-tab="home" aria-current="page"><span class="nav-symbol"><span data-icon="home"></span><span id="navBadge-home" class="nav-badge" hidden></span></span><span class="nav-label">Today</span></button><button class="nav-btn" data-tab="tasks"><span class="nav-symbol"><span data-icon="tasks"></span><span id="navBadge-tasks" class="nav-badge" hidden></span></span><span class="nav-label">Tasks</span></button><button class="nav-btn" data-tab="shopping"><span class="nav-symbol"><span data-icon="shop"></span><span id="navBadge-shopping" class="nav-badge" hidden></span></span><span class="nav-label">Shop</span></button><button class="nav-btn" data-tab="messages"><span class="nav-symbol"><span data-icon="notes"></span><span id="navBadge-messages" class="nav-badge" hidden></span></span><span class="nav-label">Notes</span></button><button class="nav-btn" data-tab="payments"><span class="nav-symbol"><span data-icon="pay"></span><span id="navBadge-payments" class="nav-badge" hidden></span></span><span class="nav-label">Pay</span></button></nav>
+<nav class="nav" aria-label="Main navigation"><button class="nav-btn active" data-tab="home" aria-current="page"><span class="nav-symbol"><span data-icon="home"></span><span id="navBadge-home" class="nav-badge" hidden></span></span><span class="nav-label">Today</span></button><button class="nav-btn" data-tab="recurring"><span class="nav-symbol"><span data-icon="tasks"></span><span id="navBadge-recurring" class="nav-badge" hidden></span></span><span class="nav-label">Routine</span></button><button class="nav-btn" data-tab="shopping"><span class="nav-symbol"><span data-icon="shop"></span><span id="navBadge-shopping" class="nav-badge" hidden></span></span><span class="nav-label">Shop</span></button><button class="nav-btn" data-tab="messages"><span class="nav-symbol"><span data-icon="notes"></span><span id="navBadge-messages" class="nav-badge" hidden></span></span><span class="nav-label">Notes</span></button><button class="nav-btn" data-tab="payments"><span class="nav-symbol"><span data-icon="pay"></span><span id="navBadge-payments" class="nav-badge" hidden></span></span><span class="nav-label">Pay</span></button></nav>
   </div>
 
   </div><script src="config.js"></script>
-  <script type="module" src="app.js?v=20261115-spare-time"></script>
+  <script type="module" src="app.js?v=20261116-routine"></script>
 </body></html>
