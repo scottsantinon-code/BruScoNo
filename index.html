@@ -149,7 +149,7 @@
     .message-actions label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
     .message-actions input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
   </style>
-<link rel="stylesheet" href="mobile-release.css?v=20261115-stable-navigation">
+  <link rel="stylesheet" href="mobile-release.css?v=20261115-phone-layout">
 </head>
 <body>
   <div class="app">
@@ -160,13 +160,19 @@
 
     <div class="global-status"><p id="legacyNotice" style="margin-top:8px;padding:10px;background:#fff7ed;color:#9a3412;font-size:13px" role="status">New-role balances exclude unassigned legacy history. Do not use these totals to settle pay until historical ownership is confirmed.</p><p id="syncStatus" role="status" style="font-size:13px;color:#666"></p><p id="dataError" role="alert" style="color:#b91c1c"></p></div><main class="main">
       <div id="homeTab" class="tab-content active">
- <p id="homeDate" class="muted date-line"></p><h2 id="homeGreeting" class="page-title">Hello.</h2><p class="muted" id="homeSummary">Checking household updates…</p>
+ <p id="homeDate" class="muted date-line"></p>
+ <h2 id="homeGreeting" class="page-title">Welcome home.</h2>
+ <p class="welcome-copy">A little organisation for a smoother day.</p>
+ <p class="muted welcome-summary" id="homeSummary">Checking household updates…</p>
+ <button class="routine-shortcut" data-mobile-tab="recurring"><strong>Start with the shift routine</strong><span>The usual jobs, ready to check off.</span></button>
+ <nav class="home-directory" aria-label="Find your way">
+  <button data-mobile-tab="tasks"><span><strong>Tasks</strong><small>One-off jobs and the shift routine</small></span><span aria-hidden="true">›</span></button>
+  <button data-mobile-tab="shopping"><span><strong>Shopping</strong><small>What the household needs</small></span><span aria-hidden="true">›</span></button>
+  <button data-mobile-tab="messages"><span><strong>Notes</strong><small>Updates and handovers for each other</small></span><span aria-hidden="true">›</span></button>
+  <button id="homePayLink" data-mobile-tab="payments"><span><strong>Hours &amp; pay</strong><small>Log work, expenses and payment history</small></span><span aria-hidden="true">›</span></button>
+ </nav>
  <div class="quick-actions"><button class="btn btn-primary" id="homePrimary">Log hours</button><button class="btn btn-secondary" id="homeSecondary">Add expense</button></div>
- <section class="mobile-panel"><div class="panel-title"><h3>On the household list</h3><button class="btn-small" data-mobile-tab="tasks">View all</button></div><div id="homeTasks"></div><p class="panel-foot" id="homeTaskCount">Loading…</p></section>
- <button class="routine-shortcut" data-mobile-tab="recurring"><strong>The usual routine</strong><span>Your checklist for each shift ›</span></button>
- <section class="mobile-panel"><div class="panel-title"><h3>Hours &amp; pay</h3><button class="btn-small" data-mobile-tab="payments">View pay</button></div><div id="homePayPeople"></div><span id="homeBalanceAmount" hidden></span></section>
- <section class="note-highlight"><h3>A note for the household</h3><p id="homeLatestNote">Loading…</p><button class="btn-small" data-mobile-tab="messages">Open notes</button></section>
- <span id="homeShopCount" hidden></span><span id="homeNotesCount" hidden></span><span id="homeRoutineCount" hidden></span>
+ <span id="homeBalanceAmount" hidden></span><span id="homeShopCount" hidden></span><span id="homeNotesCount" hidden></span><span id="homeRoutineCount" hidden></span>
  </div>
       <!-- Tasks Tab -->
       <div id="tasksTab" class="tab-content"><h2 class="page-title">Tasks</h2><div class="subnav"><strong>Household list</strong><button data-mobile-tab="recurring">Shift routine</button></div>
@@ -289,5 +295,5 @@
   </div>
 
   </div><script src="config.js"></script>
-  <script type="module" src="app.js?v=20261115-navigation-routines"></script>
+  <script type="module" src="app.js?v=20261115-welcome"></script>
 </body></html>

@@ -14,3 +14,42 @@ html,body{height:100%;min-height:0;overflow:hidden;overscroll-behavior:none}
 #appContent>.nav{position:relative;inset:auto;transform:none;flex:0 0 auto;width:100%;max-width:none;margin:0;padding-bottom:max(8px,env(safe-area-inset-bottom));padding-left:max(6px,env(safe-area-inset-left));padding-right:max(6px,env(safe-area-inset-right))}
 #authPanel{min-height:0;overflow-y:auto;overscroll-behavior:contain}
 @media print{html,body,.app,#appContent{height:auto;overflow:visible}.app{min-height:0}#appContent>.main{overflow:visible}#appContent>.nav{display:none}}
+
+/* Let content shrink to a phone width and wrap the text itself, rather than
+   relying on the scroll container to clip oversized content. */
+.app,#appContent,.main,.tab-content,.message-list,.message-item,
+.task-text,.field-label,.panel-title h3,.sheet-heading h2{min-width:0}
+#appContent,.entry-sheet,.popup{overflow-wrap:anywhere}
+.message-content{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;line-height:1.6}
+.textarea{max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+.quick-actions,.form-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+.subnav>*{min-width:0}
+.entry-actions,.message-meta,.message-actions,.panel-title,.person-pay{flex-wrap:wrap}
+.entry-actions>button{flex:0 1 auto}
+.task-item>.btn-icon,.sheet-heading>.btn-icon{flex-shrink:0}
+.entry-sheet input[type=date]{min-width:0;max-width:100%;min-inline-size:0}
+.entry-sheet input[type=date]::-webkit-date-and-time-value{text-align:left;min-width:0}
+.area-header .info-btn,.popup-close{flex-shrink:0;width:44px;height:44px}
+.popup{max-width:560px;max-height:85dvh}
+.popup-content{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.header{padding-top:max(12px,env(safe-area-inset-top));padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+.main,.global-status{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+@media(max-width:360px){
+  .main,.global-status{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .header{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .form-row{grid-template-columns:minmax(0,1fr)}
+  .message-item,.entry-item,.entry-form{padding:14px 12px}
+  .task-item,.area-task{padding-left:12px;padding-right:12px;gap:10px}
+}
+
+/* Today is an orientation page: a greeting, a short summary and destinations. */
+.welcome-copy{font-size:17px;line-height:1.55;margin:0 0 9px}
+.welcome-summary{margin-bottom:24px}
+.home-directory{margin:4px 0 20px;border-top:1px solid var(--border)}
+.home-directory button{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-width:0;padding:16px 2px;text-align:left;font:inherit;color:var(--text);background:transparent;border:0;border-bottom:1px solid var(--border);cursor:pointer}
+.home-directory button>span:first-child{min-width:0}
+.home-directory strong,.home-directory small{display:block}
+.home-directory strong{font-size:17px;font-weight:600}
+.home-directory small{font-size:13px;color:var(--text-muted);margin-top:3px}
+.home-directory button>span:last-child{font-size:26px;color:var(--primary);flex-shrink:0}
+#homeTab .routine-shortcut{border-left:3px solid var(--primary);margin-bottom:22px}

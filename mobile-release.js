@@ -1,6 +1,5 @@
 const $=id=>document.getElementById(id);
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;};
-const money=n=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(n);
 const titles={addTimeForm:'Log hours',addExpenseForm:'Add an expense',addPaymentForm:'Record a payment'};
 export function showPayHistory(view='payments'){
  $('paymentHistoryPanel').hidden=view!=='payments';$('workHistoryPanel').hidden=view!=='work';
@@ -26,24 +25,14 @@ export function renderMobile({user,member,state,workerId,loaded,financialBusy,in
  const name=member?.displayName||user?.displayName?.split(' ')[0]||(member?.workerId?member.workerId[0].toUpperCase()+member.workerId.slice(1):'');
  $('homeGreeting').textContent=name?'Hello, '+name+'.':'Our household';
  const open=state.tasks.filter(t=>!t.completed);
- $('homeSummary').textContent=loaded.has('tasks')?`${open.length} ${open.length===1?'thing':'things'} on the household list.`:'Checking household updates…';
+ const unread=state.messages.filter(m=>!m.read).length;
+ $('homeSummary').textContent=loaded.has('tasks')&&loaded.has('messages')?`${open.length?`${open.length} open ${open.length===1?'task':'tasks'}`:'No open tasks'} and ${unread?`${unread} unread ${unread===1?'note':'notes'}`:'no unread notes'}.`:'Checking household updates…';
  $('homePrimary').textContent=admin||agent?'Add task':'Log hours';$('homePrimary').onclick=()=>{if(admin||agent){switchTab('tasks');$('newTaskInput').focus();}else $('sheet-addTimeForm').showModal();};
  $('homeSecondary').textContent=admin?'Record payment':agent?'Shopping':'Add expense';$('homeSecondary').onclick=()=>agent?switchTab('shopping'):$(admin?'sheet-addPaymentForm':'sheet-addExpenseForm').showModal();
  $('homePrimary').disabled=!admin&&!agent&&financialBusy;$('homeSecondary').disabled=!agent&&financialBusy;
  $('recordPaymentShortcut').hidden=!admin;
  document.querySelector('.nav-btn[data-tab="payments"]').hidden=agent;
- $('homePayPeople').closest('section').hidden=agent;
- const list=$('homeTasks');list.replaceChildren();for(const task of open.slice(0,2)){
-  const row=node('div',null,'task-item');const check=node('button','', 'checkbox');check.type='button';check.setAttribute('aria-label','Complete: '+task.description);
-  check.onclick=()=>action('task:'+task.id,()=>backend.update('tasks',task.id,{completed:true,completedAt:backend.timestamp()}));row.append(check,node('span',task.description,'task-text'));list.append(row);
- }if(!open.length)list.append(node('p',loaded.has('tasks')?'All caught up.':'Loading tasks…','empty-state'));
- $('homeLatestNote').textContent=state.messages[0]?.text||(loaded.has('messages')?'No notes yet.':'Loading notes…');
- const pay=$('homePayPeople');pay.replaceChildren();for(const id of admin?['amy','ella']:member?.workerId?[member.workerId]:[]){
-  const worker=state.workers.find(w=>w.id===id);const entries=k=>state[k].filter(e=>e.workerId===id&&!e.voided);
-  const amount=entries('timeEntries').reduce((n,e)=>n+e.hours*e.rate,0)+entries('expenses').reduce((n,e)=>n+e.amount,0)-entries('payments').reduce((n,e)=>n+e.amount,0);
-  const invalidWorker=['timeEntries','expenses','payments'].some(k=>entries(k).some(e=>!validEntry(k,e)));
-  const row=node('button',null,'person-pay');row.type='button';const text=node('span');text.append(node('strong',worker?.displayName||id),node('small',Number.isFinite(worker?.hourlyRate)?money(worker.hourlyRate)+'/hour':'Checking rate…'));row.append(text,node('strong',!ready?'Checking…':invalidWorker||!Number.isFinite(amount)?'Review required':money(amount)));row.onclick=()=>{if(admin){$('workerSelect').value=id;$('workerSelect').dispatchEvent(new Event('change'));}switchTab('payments');};pay.append(row);
- }
+ $('homePayLink').hidden=agent;
  const combined=$('combinedActivity');combined.replaceChildren();const rows=[];
  for(const [id,label] of [['timeEntryList','Hours'],['expenseList','Expense']])for(const child of Array.from($(id).children)){
   if(!child.classList.contains('entry-item'))continue;

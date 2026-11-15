@@ -1,4 +1,4 @@
-import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-payment-history';
+import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-welcome';
 import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
 import {recurringTasks} from './routines.js?v=20261115-routine-update';
@@ -69,7 +69,6 @@ function render(){
  const earned=visible('timeEntries').reduce((n,e)=>n+e.hours*e.rate,0),expenses=visible('expenses').reduce((n,e)=>n+e.amount,0),paid=visible('payments').reduce((n,e)=>n+e.amount,0),balance=earned+expenses-paid;
  for(const id of ['balanceAmount','homeBalanceAmount'])$(id).textContent=member?.role==='agent'?'Restricted':invalid?'Review required':ready?money(balance):(pending?'Syncing…':'Checking current data…');
  $('totalEarned').textContent=invalid?'Review required':ready?money(earned):'…';$('totalExpenses').textContent=invalid?'Review required':ready?money(expenses):'…';$('totalPaid').textContent=invalid?'Review required':ready?money(paid):'…';
- $('homeTaskCount').textContent=loaded.has('tasks')?`${state.tasks.filter(t=>!t.completed).length} open`:'Loading…';$('homeShopCount').textContent=loaded.has('shopping')?`${state.shopping.length} items`:'Loading…';$('homeNotesCount').textContent=loaded.has('messages')?`${state.messages.filter(m=>!m.read).length} unread`:'Loading…';
  renderMobile({user,member,state,workerId,loaded,financialBusy:financialBusy(),invalid,ready,validEntry,action,backend,switchTab});
 }
 function renderTasks(){for(const [id,completed] of [['taskList',false],['completedTaskList',true]]){const list=$(id);list.replaceChildren();const items=state.tasks.filter(t=>!!t.completed===completed);for(const t of items){const row=el('div',null,'task-item'+(t.completed?' completed':''));row.append(button(t.completed?'✓':'',()=>action('task:'+t.id,()=>backend.update('tasks',t.id,{completed:!t.completed,completedAt:t.completed?null:backend.timestamp()})),'checkbox'+(t.completed?' checked':'')),el('span',t.description,'task-text'),button('Delete',()=>{if(confirm('Delete this task?'))action('task:'+t.id,()=>backend.remove('tasks',t.id));},'btn-small delete'));list.append(row);}if(!items.length&&!completed)list.append(el('p',loaded.has('tasks')?'No open tasks.':'Loading tasks…','empty-state'));}
@@ -105,7 +104,7 @@ signInButton.addEventListener('click',createSignInAttempt({
 $('emulatorLogin').addEventListener('submit',async e=>{e.preventDefault();try{$('authError').textContent='';await backend.login($('authEmail').value,$('authPassword').value);$('authPassword').value='';}catch(e){$('authError').textContent=e.message;}});
 setupMobile(switchTab);
 try{
- const config=window.HOUSEHOLD_CONFIG;$('environmentBanner').textContent=config.mode==='demo'?'DEMO · Synthetic financial examples. No live connection. Changes reset on reload.':config.mode==='emulator'?'ISOLATED EMULATORS · No production connection.':'LIVE HOUSEHOLD · Production data';
+ const config=window.HOUSEHOLD_CONFIG;$('environmentBanner').textContent=config.mode==='demo'?'DEMO · Synthetic financial examples. No live connection. Changes reset on reload.':config.mode==='emulator'?'ISOLATED EMULATORS · No production connection.':'';$('environmentBanner').hidden=config.mode==='production';
  $('emulatorLogin').hidden=config.mode!=='emulator';$('googleLogin').hidden=config.mode==='emulator';if(config.mode==='demo')$('googleLogin').textContent='Open demo';
  backend=await connectBackend(config);
  signInButton.disabled=false;
