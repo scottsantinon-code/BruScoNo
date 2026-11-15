@@ -12,7 +12,7 @@
   <title>BruScoNo</title>
 
 
-  <link rel="stylesheet" href="mobile-release.css?v=20261115-clarity">
+  <link rel="stylesheet" href="mobile-release.css?v=20261115-spare-time">
 </head>
 <body>
   <div class="app">
@@ -30,15 +30,17 @@
   <span class="shift-icon" data-icon="tasks"></span><span class="shift-copy"><strong id="shiftActionLabel">Start your shift</strong><span id="homeRoutineProgress">Your room-by-room checklist</span></span><span data-icon="arrow"></span>
   <progress id="homeRoutineBar" max="1" value="0" aria-label="Shift routine progress"></progress>
  </button>
+ <button id="homeSpareTasks" class="text-link spare-link" hidden></button>
  <div class="home-work-actions"><button class="btn btn-primary" id="homePrimary">Log hours</button><button class="btn btn-secondary" id="homeSecondary">Add expense</button></div>
  <button id="homePayLink" class="text-link" data-mobile-tab="payments"><span data-icon="pay"></span>Hours &amp; payment history<span data-icon="arrow"></span></button>
  <span id="homeBalanceAmount" hidden></span><span id="homeShopCount" hidden></span><span id="homeNotesCount" hidden></span><span id="homeRoutineCount" hidden></span>
  </div>
       <!-- Tasks Tab -->
       <div id="tasksTab" class="tab-content"><h2 class="page-title">Tasks</h2><div class="subnav"><strong>One-off tasks</strong><button data-mobile-tab="recurring">Shift routine</button></div>
-        <form id="addTaskForm" class="add-form">
+        <form id="addTaskForm" class="add-form task-composer">
           <input type="text" id="newTaskInput" aria-label="New household task" class="input" placeholder="Add a task...">
           <button type="submit" class="btn btn-primary">Add</button>
+          <label class="spare-time-option"><input type="checkbox" id="newTaskSpareTime">When there’s time</label>
         </form>
         <div id="taskList" class="task-list"></div>
         <div id="completedSection" class="completed-section hidden">
@@ -154,5 +156,5 @@
   </div>
 
   </div><script src="config.js"></script>
-  <script type="module" src="app.js?v=20261115-clarity"></script>
+  <script type="module" src="app.js?v=20261115-spare-time"></script>
 </body></html>

@@ -1,5 +1,4 @@
 import {icon} from './icons.js';
-import {householdDate,taskBucket} from './ui-model.js';
 const $=id=>document.getElementById(id);
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;};
 const titles={addTimeForm:'Log hours',addExpenseForm:'Add an expense',addPaymentForm:'Record a payment'};
@@ -30,23 +29,22 @@ export function renderMobile({user,member,state,workerId,loaded,financialBusy,in
  const name=member?.displayName||user?.displayName?.split(' ')[0]||(member?.workerId?member.workerId[0].toUpperCase()+member.workerId.slice(1):'');
  $('homeGreeting').textContent=name?'Hi, '+name+'.':'Welcome home.';
  $('accountInitial').textContent=(name||'H').slice(0,1).toUpperCase();$('accountName').textContent=name||'Household';
- const open=state.tasks.filter(t=>!t.completed),day=householdDate();
- const due=open.filter(t=>['Overdue','Today'].includes(taskBucket(t,day))).length;
- const overdue=open.filter(t=>taskBucket(t,day)==='Overdue').length;
- const tomorrow=open.filter(t=>taskBucket(t,day)==='Tomorrow').length;
+ const open=state.tasks.filter(t=>!t.completed);
+ const toDo=open.filter(t=>t.nonUrgent!==true).length,spare=open.filter(t=>t.nonUrgent===true).length;
  const unread=state.messages.filter(m=>!m.read).length;
  const attention=$('homeAttention');attention.replaceChildren();
  function attentionRow(count,title,destination,type,iconName){
   const b=node('button',null,'attention-row '+type);b.type='button';b.append(icon(iconName),node('span',title),node('strong',count,'attention-count'),icon('arrow'));b.onclick=()=>switchTab(destination);attention.append(b);
  }
- if(loaded.has('tasks')&&due)attentionRow(due,overdue?'Tasks needing attention':'Tasks for today','tasks',overdue?'urgent':'attention','calendar');
+ if(loaded.has('tasks')&&toDo)attentionRow(toDo,'Tasks to do','tasks','upcoming','tasks');
  if(loaded.has('messages')&&unread)attentionRow(unread,'Unread notes','messages','attention','notes');
- if(loaded.has('tasks')&&tomorrow)attentionRow(tomorrow,'Tasks for tomorrow','tasks','upcoming','calendar');
- if(loaded.has('tasks')&&!due&&!tomorrow&&open.length)attentionRow(open.length,'Open tasks','tasks','upcoming','tasks');
+ $('homeSpareTasks').hidden=!loaded.has('tasks')||!spare;
+ $('homeSpareTasks').replaceChildren(icon('leaf'),node('span',spare+' '+(spare===1?'task':'tasks')+' for spare time'),icon('arrow'));
+ $('homeSpareTasks').onclick=()=>{switchTab('tasks');$('tasks-spare-time')?.scrollIntoView({block:'start'});};
  const readyHome=loaded.has('tasks')&&loaded.has('messages');
  $('homeSummary').textContent=readyHome?(attention.children.length?'':'No updates to catch up on.'):'Checking updates…';$('homeSummary').hidden=readyHome&&!!attention.children.length;
- function badge(tab,count,label){const n=$('navBadge-'+tab);n.hidden=!count;n.textContent=count>99?'99+':String(count);n.closest('button').setAttribute('aria-label',label+(count?', '+count+' '+(tab==='messages'?'unread':tab==='tasks'?'due':'items'):''));}
- badge('tasks',due,'Tasks');badge('messages',unread,'Notes');badge('shopping',state.shopping.length,'Shop');
+ function badge(tab,count,label){const n=$('navBadge-'+tab);n.hidden=!count;n.textContent=count>99?'99+':String(count);n.closest('button').setAttribute('aria-label',label+(count?', '+count+' '+(tab==='messages'?'unread':tab==='tasks'?'to do':'items'):''));}
+ badge('tasks',toDo,'Tasks');badge('messages',unread,'Notes');badge('shopping',state.shopping.length,'Shop');
  const primary=admin||agent?'Add task':'Log hours',secondary=admin?'Record payment':agent?'Shopping':'Add expense';
  $('homePrimary').replaceChildren(icon(admin||agent?'plus':'clock'),node('span',primary));$('homePrimary').onclick=()=>{if(admin||agent){switchTab('tasks');$('newTaskInput').focus();}else $('sheet-addTimeForm').showModal();};
  $('homeSecondary').replaceChildren(icon(admin?'pay':agent?'shop':'plus'),node('span',secondary));$('homeSecondary').onclick=()=>agent?switchTab('shopping'):$(admin?'sheet-addPaymentForm':'sheet-addExpenseForm').showModal();

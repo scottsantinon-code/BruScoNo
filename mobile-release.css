@@ -237,3 +237,17 @@ progress::-moz-progress-bar{background:var(--primary);border-radius:20px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{html,body,.app,#appContent{height:auto;overflow:visible}.app{max-width:none}.main{overflow:visible}.nav,.account-menu{display:none}}
+
+/* Task priority is an explicit household choice, separate from dates. */
+.task-composer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-bottom:22px}
+.spare-time-option{grid-column:1/-1;display:flex;align-items:center;gap:9px;min-height:44px;font-size:13px;color:var(--text-muted);cursor:pointer;width:fit-content}
+.spare-time-option input{width:18px;height:18px;accent-color:var(--primary)}
+.task-spare-button{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:3px 0 -3px;padding:8px 2px;font-size:12px;font-weight:600;border:0;background:transparent;color:var(--text-muted);border-radius:6px}
+.task-spare-button:hover{color:var(--primary)}
+.task-spare-button .ui-icon{width:16px;height:16px}
+.task-group.spare-time .list-heading{justify-content:flex-start;gap:8px;color:var(--success)}
+.task-group.spare-time .list-heading .ui-icon{width:19px;height:19px}
+.task-group.spare-time .count-label{margin-left:auto}
+.task-group.spare-time .task-item{background:#f7faf8}
+.spare-link{margin:-8px 0 16px;color:var(--success)}
+.spare-link>span{flex:1}

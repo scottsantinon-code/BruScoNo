@@ -9,8 +9,11 @@ export function taskBucket(task,day=householdDate()){
  if(task.dueDate===nextDate(day))return 'Tomorrow';
  return 'Upcoming';
 }
-export function taskGroups(tasks,day=householdDate()){
- const order=['Overdue','Today','Tomorrow','Upcoming','Anytime'];
- return order.map(label=>({label,tasks:tasks.filter(t=>!t.completed&&taskBucket(t,day)===label).sort((a,b)=>String(a.dueDate||'').localeCompare(String(b.dueDate||'')))})).filter(g=>g.tasks.length);
+export function taskGroups(tasks){
+ const open=tasks.filter(t=>!t.completed);
+ return [
+  {key:'to-do',label:'To do',tasks:open.filter(t=>t.nonUrgent!==true)},
+  {key:'spare-time',label:'When there’s time',tasks:open.filter(t=>t.nonUrgent===true)}
+ ].filter(g=>g.tasks.length);
 }
 export function routineProgress(areas,checks){let total=0,done=0;areas.forEach((a,i)=>a.tasks.forEach((_,j)=>{total++;if(checks[i+'-'+j])done++;}));return{total,done};}

@@ -1,6 +1,6 @@
 import {icon,areaIcon} from './icons.js';
-import {taskGroups,shortDate,routineProgress,validDay} from './ui-model.js';
-import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-clarity';
+import {taskGroups,shortDate,routineProgress,validDay} from './ui-model.js?v=20261115-spare-time';
+import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-spare-time';
 import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
 import {recurringTasks} from './routines.js?v=20261115-laundry-instructions';
@@ -92,12 +92,13 @@ function taskRow(t){
  const row=el('div',null,'task-item'+(t.completed?' completed':''));
  const check=iconButton('check',(t.completed?'Reopen: ':'Complete: ')+t.description,()=>action('task:'+t.id,()=>backend.update('tasks',t.id,{completed:!t.completed,completedAt:t.completed?null:backend.timestamp()})),'checkbox'+(t.completed?' checked':''));check.setAttribute('role','checkbox');check.setAttribute('aria-checked',String(!!t.completed));check.disabled=busy.has('task:'+t.id);keyed(check,'task:'+t.id+':check');
  const copy=el('div',null,'task-text');copy.append(el('span',taskCopy(t)));if(validDay(t.dueDate))copy.append(el('span',shortDate(t.dueDate),'task-date'));
+ if(!t.completed){const spare=button(t.nonUrgent===true?'Move to To do':'Spare time',()=>action('task:'+t.id,async current=>{await backend.update('tasks',t.id,{nonUrgent:t.nonUrgent!==true});if(current()&&activeTab==='tasks'){const moved=[...document.querySelectorAll('[data-focus-key]')].find(n=>n.dataset.focusKey==='task:'+t.id+':spare');moved?.scrollIntoView({block:'nearest'});}}),'task-spare-button');spare.prepend(icon(t.nonUrgent===true?'arrow':'leaf'));spare.setAttribute('aria-label',(t.nonUrgent===true?'Move to To do: ':'Mark as spare time: ')+t.description);spare.disabled=busy.has('task:'+t.id);keyed(spare,'task:'+t.id+':spare');copy.append(spare);}
  const remove=iconButton('trash','Delete task: '+t.description,()=>{if(confirm('Delete this task?'))action('task:'+t.id,()=>backend.remove('tasks',t.id));},'btn-icon delete');remove.disabled=busy.has('task:'+t.id);keyed(remove,'task:'+t.id+':delete');
  row.append(check,copy,remove);return row;
 }
 function renderTasks(){
  const list=$('taskList');list.replaceChildren();
- for(const group of taskGroups(state.tasks)){const section=el('section',null,'task-group '+group.label.toLowerCase());const head=el('h3',null,'list-heading');head.append(el('span',group.label),el('span',group.tasks.length,'count-label'));section.append(head,...group.tasks.map(taskRow));list.append(section);}
+ for(const group of taskGroups(state.tasks)){const section=el('section',null,'task-group '+group.key);section.id='tasks-'+group.key;const head=el('h3',null,'list-heading');if(group.key==='spare-time')head.append(icon('leaf'));head.append(el('span',group.label),el('span',group.tasks.length,'count-label'));section.append(head,...group.tasks.map(taskRow));list.append(section);}
  if(!list.children.length)list.append(el('p',loaded.has('tasks')?'All caught up. Add a task when something comes up.':'Loading tasks…','empty-state'));
  const done=state.tasks.filter(t=>t.completed);$('completedTaskList').replaceChildren(...done.map(taskRow));$('completedCount').textContent=done.length;$('completedSection').classList.toggle('hidden',!done.length);
 }
@@ -129,7 +130,7 @@ function renderRoutine(){
 function dateValue(id){const value=$(id).value;if(!/^\d{4}-\d{2}-\d{2}$/.test(value))throw Error('Choose a valid date.');return value;}
 function positive(id){const value=Number($(id).value);if(!Number.isFinite(value)||value<=0)throw Error('Enter an amount greater than zero.');return value;}
 function bindForm(id,fn){$(id).addEventListener('submit',e=>{e.preventDefault();action(id,async current=>{const controls=[...$(id).querySelectorAll('input,textarea,button')];controls.forEach(n=>n.disabled=true);try{await fn(current);}finally{if(current())render();}});});}
-bindForm('addTaskForm',async current=>{const text=$('newTaskInput').value.trim();if(!text)return;await backend.add('tasks',{description:text,completed:false});if(current())$('newTaskInput').value='';});
+bindForm('addTaskForm',async current=>{const text=$('newTaskInput').value.trim();if(!text)return;await backend.add('tasks',{description:text,completed:false,nonUrgent:$('newTaskSpareTime').checked});if(current()){$('newTaskInput').value='';$('newTaskSpareTime').checked=false;}});
 bindForm('addShoppingForm',async current=>{const text=$('newShoppingInput').value.trim();if(!text)return;await backend.add('shopping',{name:text});if(current())$('newShoppingInput').value='';});
 bindForm('addMessageForm',async current=>{const text=$('newMessageInput').value.trim();if(!text)return;await backend.add('messages',{text,read:false});if(current()){$('newMessageInput').value='';$('noteComposer').open=false;}});
 bindForm('addTimeForm',async current=>{if(!canPayroll())throw Error('This payroll view is read-only.');const existing=state.timeEntries.find(e=>e.id===editId);const rate=existing?.rate??selectedWorker()?.hourlyRate;if(!Number.isFinite(rate)||rate<=0)throw Error('The hourly rate must be confirmed first.');const data={date:dateValue('entryDate'),hours:positive('entryHours'),notes:$('entryNotes').value.trim()||null};if(editId){if(!existing||existing.workerId!==workerId||existing.sourcePath||existing.voided)throw Error('This entry cannot be edited.');await backend.update('timeEntries',editId,data);}else await backend.add('timeEntries',{...data,workerId,rate});if(current()){cancelEdit();document.getElementById('sheet-addTimeForm')?.close();}});
