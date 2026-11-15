@@ -30,7 +30,7 @@ export const recurringTasks = [
           'Clean out fridge',
           'Tidy and wipe down surfaces',
           'Wipe down toddler tower',
-          'Ensure clean tea towels in the Qantas cart and restock baby face washers'
+          'Ensure clean tea towels in the Qantas cart'
         ],
         notes: [
           'Dishwasher tablets are above the stove on the right hand side',
@@ -40,18 +40,19 @@ export const recurringTasks = [
       {
         area: 'Lounge',
         icon: '🛋️',
-        tasks: ['Tidy toys / pick up pillows on floor', 'Water the vine', 'Set off robovac'],
+        tasks: ['Tidy toys', 'Water the vine', 'Set off robovac'],
         notes: ['To water the vine, check if the indicators are up and then top up with water in the corner (not onto the plant)']
       },
       {
         area: 'Laundry',
         icon: '🧺',
-        tasks: ['Separate laundry into three load types: whites; coloured clothes; socks/jocks/towels/dish towels. Use the hand-wash cycle for clothes', 'Hang clothes out; put socks, jocks, towels and dish towels in the dryer'],
+        tasks: ['Do the laundry'],
         notes: [
           'Basket in Bruce & Scott\'s bedroom',
           'Keep whites, coloured clothes, and socks/jocks/towels/dish towels in three separate load types',
-          'Socks/jocks/towels/dish towels/sheets → quick cycle + dryer',
-          'White and coloured clothes → separate loads, cold hand-wash cycle + hang on clothes horse'
+          'Use the cold hand-wash cycle for clothes; use the quick cycle for socks, jocks, towels, dish towels and sheets',
+          'Hang clothes on the clothes line to dry',
+          'Towels, socks, jocks, dish towels and sheets can go in the dryer'
         ]
       },
       {

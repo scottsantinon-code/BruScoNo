@@ -1,7 +1,7 @@
 import {setupMobile,renderMobile,showPayHistory} from './mobile-release.js?v=20261115-welcome';
 import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
-import {recurringTasks} from './routines.js?v=20261115-routine-update';
+import {recurringTasks} from './routines.js?v=20261115-laundry-instructions';
 const $=id=>document.getElementById(id);
 const money=x=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(x);
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
@@ -16,7 +16,7 @@ function loadRoutineChecks(){
   const raw=JSON.parse(localStorage.getItem('recurringChecked')||'{}');
   if(!raw||Array.isArray(raw)||typeof raw!=='object')return {};
   const checks=Object.fromEntries(Object.entries(raw).filter(([k,v])=>/^\d+-\d+$/.test(k)&&typeof v==='boolean').slice(0,1000));
-  if(localStorage.getItem('recurringRevision')!=='20261115-routine-update'){
+  if(!['20261115-routine-update','20261115-laundry-instructions'].includes(localStorage.getItem('recurringRevision'))){
    // Removing the vegetable-prep row moves the two unchanged kitchen tasks.
    const surfaces=checks['3-3'],tower=checks['3-4'];
    for(const key of ['0-0','2-0','3-2','3-3','3-4','3-5','5-0','5-1'])delete checks[key];
@@ -24,6 +24,12 @@ function loadRoutineChecks(){
    if(typeof tower==='boolean')checks['3-3']=tower;
    localStorage.setItem('recurringChecked',JSON.stringify(checks));
    localStorage.setItem('recurringRevision','20261115-routine-update');
+  }
+  if(localStorage.getItem('recurringRevision')!=='20261115-laundry-instructions'){
+   // The two laundry instruction rows become one complete laundry task.
+   delete checks['5-0'];delete checks['5-1'];
+   localStorage.setItem('recurringChecked',JSON.stringify(checks));
+   localStorage.setItem('recurringRevision','20261115-laundry-instructions');
   }
   return checks;
  }catch{return {};}
