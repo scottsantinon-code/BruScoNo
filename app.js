@@ -1,4 +1,5 @@
 import {setupMobile,renderMobile} from './mobile-release.js';
+import {createSignInAttempt} from './sign-in.js';
 import {connectBackend} from './backend.js';
 import {recurringTasks} from './routines.js';
 const $=id=>document.getElementById(id);
@@ -78,13 +79,20 @@ document.querySelectorAll('.nav-btn').forEach(n=>n.addEventListener('click',()=>
 for(const id of ['entryDate','paymentDate','expenseDate'])$(id).value=today();
 $('authSignOut').addEventListener('click',async()=>{try{await backend.logout();}catch(e){$('authError').textContent=e.message;}});
 $('signOut').addEventListener('click',()=>action('signout',()=>backend.logout()));
-$('googleLogin').addEventListener('click',async()=>{try{$('authError').textContent='';await backend.googleLogin();}catch(e){$('authError').textContent=e.message;}});
+const signInButton=$('googleLogin'),signInStatus=el('p','');signInStatus.setAttribute('role','status');signInButton.after(signInStatus);signInButton.disabled=true;
+signInButton.addEventListener('click',createSignInAttempt({
+ login:()=>backend.googleLogin(),
+ onBusy:pending=>{signInButton.disabled=pending;signInButton.setAttribute('aria-busy',String(pending));signInButton.textContent=pending?'Signing in…':window.HOUSEHOLD_CONFIG.mode==='demo'?'Open demo':'Continue with Google';},
+ onStatus:message=>signInStatus.textContent=message,
+ onError:message=>$('authError').textContent=message
+}));
 $('emulatorLogin').addEventListener('submit',async e=>{e.preventDefault();try{$('authError').textContent='';await backend.login($('authEmail').value,$('authPassword').value);$('authPassword').value='';}catch(e){$('authError').textContent=e.message;}});
 setupMobile(switchTab);
 try{
  const config=window.HOUSEHOLD_CONFIG;$('environmentBanner').textContent=config.mode==='demo'?'DEMO · Synthetic financial examples. No live connection. Changes reset on reload.':config.mode==='emulator'?'ISOLATED EMULATORS · No production connection.':'LIVE HOUSEHOLD · Production data';
  $('emulatorLogin').hidden=config.mode!=='emulator';$('googleLogin').hidden=config.mode==='emulator';if(config.mode==='demo')$('googleLogin').textContent='Open demo';
  backend=await connectBackend(config);
+ signInButton.disabled=false;
  backend.watchAuth((nextUser,nextMember,error)=>{++contextEpoch;const view=++viewEpoch;document.querySelectorAll('dialog[open]').forEach(d=>d.close());busy.clear();unsubs.forEach(fn=>fn());unsubs=[];loaded.clear();for(const key of Object.keys(state)){state[key]=[];delete syncState[key];}user=nextUser;member=nextMember;cancelEdit();for(const id of ['paymentAmount','paymentNotes','expenseAmount','expenseDescription'])$(id).value='';for(const id of ['paymentDate','expenseDate'])$(id).value=today();
  const approved=!!(user&&member?.active&&['admin','worker','agent'].includes(member.role)&&(member.role!=='worker'||['amy','ella'].includes(member.workerId)));$('authPanel').hidden=approved;$('appContent').hidden=!approved;$('authSignOut').hidden=!user;
  if(!approved){$('authError').textContent=error?.message||(user?'This account has not been approved for household access.':'');return;}
